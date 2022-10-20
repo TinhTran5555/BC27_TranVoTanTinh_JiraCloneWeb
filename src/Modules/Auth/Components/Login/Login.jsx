@@ -48,7 +48,7 @@ export default function SignIn() {
       
         try {
           await dispatch(signInHandler(user)).unwrap();   
-          navigate("/");
+          navigate("/project");
         } catch (error) {
            console.log(error);
         }

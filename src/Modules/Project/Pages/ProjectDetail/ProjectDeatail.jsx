@@ -17,38 +17,25 @@ import {
   Grid,
   Avatar,
   AvatarGroup,
+  
+  ListItem,
+  Divider ,
+  ListItemText ,
+  ListItemAvatar
 } from "@mui/material";
+
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { projectSelector } from "../../../../app/store";
 import { useParams } from "react-router-dom";
 import { getProjectDetailThunk } from "../../slice/projectSlice";
+import List from "./List";
+
 const Heading = styled(Box)(({ theme }) => ({
   textAlign: "left",
 }));
-const Collum = styled(Box)(({ theme }) => ({
-  height: "100%",
-  width: "calc(25% - 16px)",
-  backgroundColor: "#f4f5f7",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  marginRight: "8px",
-  minHeight: "400px",
-  paddingBottom: "20px",
-  paddingLeft: "8px",
-  
-}));
-const TextTitle = styled(Typography)(({ theme }) => ({
-  textTransform: "uppercase",
-  color: "#5e6c84",
-  fontSize: "0.8125rem",
-  overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    width: "100%"
-  //  textAlign: "left",
-}));
+
+
 const BoxList = styled(Box)(({ theme }) => ({
   width: "95%"
 
@@ -79,16 +66,16 @@ const ProjectDeatail = () => {
   const { projectId } = useParams();
   const dispatch = useDispatch();
 
-  console.log(projectId);
+
   const { projectDetail } = useSelector(projectSelector);
-  console.log("projectDetail", projectDetail);
+
   useEffect(() => {
     dispatch(getProjectDetailThunk(projectId));
   }, [projectId]);
   return (
     <Container maxWidth="xl">
       <Grid marginTop={2}>
-        <Grid xs={6}>
+        <Grid >
           <Heading>
             <Typography fontWeight={700} variant="h5" component="h1">
               {projectDetail.projectName}
@@ -96,7 +83,106 @@ const ProjectDeatail = () => {
           </Heading>
         </Grid>
       </Grid>
-      <Grid xs={12} container marginTop={2}>
+      <Grid container marginTop={2} >
+        <List listTask={projectDetail.lstTask}/>
+        {/* {projectDetail?.lstTask?.map((task) => (
+          <Collum  key={task.statusId}>
+            <TextTitle>{task.statusName}<span style={{marginLeft: "5px"}}>({task.lstTaskDeTail.length})</span></TextTitle>
+            
+          </Collum>
+        ))} */}
+      </Grid>
+      {/* <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+      <ListItem alignItems="flex-start">
+        <ListItemAvatar>
+          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+        </ListItemAvatar>
+        <ListItemText
+          primary="Brunch this weekend?"
+          secondary={
+            <React.Fragment>
+              <Typography
+                sx={{ display: 'inline' }}
+                component="span"
+                variant="body2"
+                color="text.primary"
+              >
+                Ali Connors
+              </Typography>
+              {" — I'll be in your neighborhood doing errands this…"}
+            </React.Fragment>
+          }
+        />
+      </ListItem>
+      <Divider variant="inset" component="li" />
+      <ListItem alignItems="flex-start">
+        <ListItemAvatar>
+          <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
+        </ListItemAvatar>
+        <ListItemText
+          primary="Summer BBQ"
+          secondary={
+            <React.Fragment>
+              <Typography
+                sx={{ display: 'inline' }}
+                component="span"
+                variant="body2"
+                color="text.primary"
+              >
+                to Scott, Alex, Jennifer
+              </Typography>
+              {" — Wish I could come, but I'm out of town this…"}
+            </React.Fragment>
+          }
+        />
+      </ListItem>
+      <Divider variant="inset" component="li" />
+      <ListItem alignItems="flex-start">
+        <ListItemAvatar>
+          <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+        </ListItemAvatar>
+        <ListItemText
+          primary="Oui Oui"
+          secondary={
+            <React.Fragment>
+              <Typography
+                sx={{ display: 'inline' }}
+                component="span"
+                variant="body2"
+                color="text.primary"
+              >
+                Sandra Adams
+              </Typography>
+              {' — Do you have Paris recommendations? Have you ever…'}
+            </React.Fragment>
+          }
+        />
+      </ListItem>
+    </List> */}
+      {/* <List variant="outlined"
+              sx={{
+                minWidth: 240,
+                borderRadius: 'sm',
+                '--List-decorator-size': '48px',
+                '--List-item-paddingLeft': '1.5rem',
+                '--List-item-paddingRight': '1rem',
+              }}
+>  <ListItem>
+              <ListItemText  orator sx={{ alignSelf: 'flex-start' }}>
+                <Avatar size="sm" src="/static/images/avatar/1.jpg" />
+              </ListItemText>
+              Mabel Boyle
+            </ListItem>
+            <Divider   />
+            <ListItem>
+              <ListItemText  sx={{ alignSelf: 'flex-start' }}>
+                <Avatar size="sm" src="/static/images/avatar/2.jpg" />
+              </ListItemText>
+              Boyd Burt
+            </ListItem>
+        
+      </List> */}
+      {/* <Grid xs={12} container marginTop={2}>
         {projectDetail?.lstTask?.map((task) => (
           <Collum key={task.statusId}>
             <TextTitle>{task.statusName}<span style={{marginLeft: "5px"}}>({task.lstTaskDeTail.length})</span></TextTitle>
@@ -119,7 +205,7 @@ const ProjectDeatail = () => {
             </BoxList>
           </Collum>
         ))}
-      </Grid>
+      </Grid> */}
     </Container>
   );
 };

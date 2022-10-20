@@ -16,7 +16,9 @@ import Register from "./Modules/Auth/Components/Register";
 import CheckoutRoute from "./Routes/CheckoutRoute";
 
 const MainLayout = React.lazy(() => import("./UI/Layout/MainLayout/Pages"));
-const ProjectDetail = React.lazy(() => import("./Modules/Project/Pages/ProjectDetail"));
+const ProjectDetail = React.lazy(() =>
+  import("./Modules/Project/Pages/ProjectDetail")
+);
 const Project = React.lazy(() => import("./Modules/Project/Pages/Project"));
 const CreateProject = React.lazy(() =>
   import("./Modules/Project/Pages/CreateProject")
@@ -24,7 +26,6 @@ const CreateProject = React.lazy(() =>
 const EditProject = React.lazy(() =>
   import("./Modules/Project/Components/EditProject")
 );
-
 
 function App() {
   return (
@@ -38,33 +39,29 @@ function App() {
         }
       >
         <Routes>
-          <Route path="/" element={<CheckoutRoute>
-             <MainLayout/>           
-          </CheckoutRoute>}>
-           
-          </Route>
-
-          <Route path="/" element={<MainLayout/>}>
-            <Route path="/project" element={<Project />} />
+          <Route
+            path="/"
+            element={
+              <CheckoutRoute>
+                <MainLayout path="/" />
+              </CheckoutRoute>
+            }
+          ></Route>
+          <Route path="/" element={<CheckoutRoute />}>
+            <Route path="/" element={<MainLayout/>}>
+              <Route path="/project" element={<Project />} />
               <Route
                 path="/project/create-project"
                 element={<CreateProject />}
               />
-               <Route
-                path="/project/edit-project"
-                element={<EditProject />}
-              /><Route
-              path="/project/:projectId"
-              element={<ProjectDetail />}
-            />
+              <Route path="/project/edit-project" element={<EditProject />} />
+              <Route path="/project/:projectId" element={<ProjectDetail />} />
               <Route path="/project">
                 <Route path="board" element={<Board />} />
                 <Route path="create-task" />
-                
               </Route>
+            </Route>
           </Route>
-
-
 
           <Route path="/">
             <Route path="/login" element={<Login />}></Route>
