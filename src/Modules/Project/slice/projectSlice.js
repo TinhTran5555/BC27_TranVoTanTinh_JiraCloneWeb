@@ -5,6 +5,7 @@ import projectAPIs from '../../../app/apis/projectAPIs/projectAPIs';
 const initialState = {
   projects: [],
   projectDetail: [],
+  taskDetail:[],
   isLoading: false,
   error: '',
 };
@@ -17,7 +18,8 @@ const {
   updateProject,
   assignUser,
   removeUserFromProject,
-  getSearchProjects
+  getSearchProjects,
+  getSearchTask
 } = projectAPIs;
 
 export const getAllProjectsThunk = thunk.request(
@@ -25,6 +27,18 @@ export const getAllProjectsThunk = thunk.request(
   getAllProjects
 );
 
+export const getSearchTaskThunk = createAsyncThunk(
+  "task/getSearchTask",
+  async (taskId, { rejectWithValue }) => {
+    try {
+      const data = await getSearchTask(taskId);
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 export const getSearchProjectsThunk = createAsyncThunk(
   "project/getSearchProjects",
   async (keyword, { rejectWithValue }) => {
@@ -59,12 +73,6 @@ export const updateProjectThunk = createAsyncThunk(
   }
 );
 
-
-// export const updateProjectThunk = thunk.request(
-//   'project/eidtProject',
-//   updateProject
-// );
-
 export const deleteProjectThunk = thunk.request(
   'project/deleteProject',
   deleteProject
@@ -79,6 +87,7 @@ export const assignUserProjectThunk = thunk.request(
   'project/assignUserProject',
   assignUser
 );
+
 
 const projectSlice = createSlice({
   name: 'project',
@@ -118,6 +127,19 @@ const projectSlice = createSlice({
         state.projectDetail = payload;
       })
       .addCase(getProjectDetailThunk.rejected, (state, { payload }) => {
+      
+        state.error = payload;
+     
+      });
+      builder
+      .addCase(getSearchTaskThunk.pending, (state) => {
+       
+      })
+      .addCase(getSearchTaskThunk.fulfilled, (state, { payload }) => {
+       
+        state.taskDetail = payload;
+      })
+      .addCase(getSearchTaskThunk.rejected, (state, { payload }) => {
       
         state.error = payload;
      

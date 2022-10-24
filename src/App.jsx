@@ -26,6 +26,7 @@ const CreateProject = React.lazy(() =>
 const EditProject = React.lazy(() =>
   import("./Modules/Project/Components/EditProject")
 );
+const Task = React.lazy(() => import("./Modules/Project/Pages/Task"));
 
 function App() {
   return (
@@ -48,18 +49,14 @@ function App() {
             }
           ></Route>
           <Route path="/" element={<CheckoutRoute />}>
-            <Route path="/" element={<MainLayout/>}>
+            <Route path="/" element={<MainLayout />}>
               <Route path="/project" element={<Project />} />
               <Route
                 path="/project/create-project"
-                element={<CreateProject />}
-              />
+                element={<CreateProject />}/>
               <Route path="/project/edit-project" element={<EditProject />} />
               <Route path="/project/:projectId" element={<ProjectDetail />} />
-              <Route path="/project">
-                <Route path="board" element={<Board />} />
-                <Route path="create-task" />
-              </Route>
+              <Route path="/project/:projectId/:taskId" element={<Task />} />
             </Route>
           </Route>
 

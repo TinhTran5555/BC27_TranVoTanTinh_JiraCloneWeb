@@ -115,7 +115,7 @@ export default function EditProject(projectId) {
     description: "",
     categoryId: "",
     id: "",
-  }); //
+  }); 
 
   const [selectedCategory, setSelectedCategory] = useState(null); //
   // const [description, setDescription] = useState(null); //

@@ -18,6 +18,17 @@ const projectAPIs = {
     }
     
   },
+  getSearchTask: (taskId) => {
+  
+      return axiosClient.get("Project/getTaskDetail", {
+        params: {
+          taskId: taskId,
+        },
+       
+      });
+    
+    
+  },
   getProjectDetail: (id) => {
   
     const params = new URLSearchParams();
