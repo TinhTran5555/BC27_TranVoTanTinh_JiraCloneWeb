@@ -11,7 +11,11 @@ import {
   Avatar,
   TextField,
   colors,
-  Chip
+  Chip,
+  FormControl,
+  Select,
+  InputLabel,
+  alpha,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import React, { useState, useEffect } from "react";
@@ -24,411 +28,438 @@ import { faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { getSearchTaskThunk } from "../../slice/projectSlice";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
+import statusList from "../../../../app/apis/statusList/statusList";
+import priorityList from "../../../../app/apis/priorityList/priorityList";
+import Members from "../../Components/Members/Members";
+
+import MembersTaskAction from "../../Components/MembersTaskAction/MembersTaskAction";
+import { useForm } from "react-hook-form";
+
 const { getTypeTaskList } = typeTaskList;
+const { getStatusList } = statusList;
+const { getPriorityList } = priorityList;
+
+
+const StyleSelection = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "flex-start",
+  gap: "8px",
+  alignItems: "center",
+  flexWrap: "wrap"
+}));
+const categoryTypeTaskMap = {
+  1: "bug",
+  2: "new task",
+};
+const categoryStatusMap = {
+  1: "BACKLOG",
+  2: "SELECTED FOR DEVELOPMENT",
+  3: "IN PROGRESS",
+  4: "DONE",
+};
+const categoryPriorityMap = {
+  1: "High",
+  2: "Medium",
+  3: "Low",
+  4: "Lowest",
+};
 
 const Task = () => {
-  const BoxStyle = styled(Box)(({ theme }) => ({
-    marginTop: "90px",
-  }));
-  const TitleStyle = styled(Typography)(({ theme }) => ({
-    fontSize: "16px",
-    fontWeight: 600,
-    color: colors.teal[500],
-  }));
-  const TagNameStyle = styled(Grid)(({ theme }) => ({
-    fontWeight: 400,
-    backgroundColor: colors.teal[100],
-    color: "#000",
-    paddingTop: "5px",
-    paddingBottom: "5px",
-  }));
   const { taskId } = useParams();
+  
   const dispatch = useDispatch();
   const { taskDetail } = useSelector(projectSelector);
-  const {taskTypeDetail} = taskDetail
-  console.log(taskDetail);
-  const listTypeTask = {
-    bug: "Bug",
-    new: "New task",
-    
-  };
-  const [typeTask, setTypeTask] = useState(null);
+  
+  const {
+    handleSubmit,
 
-  console.log("typeTask", typeTask);
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {},
+  });
+  const { data: typeTaskList } = useRequest(getTypeTaskList);
+  const { data: statusList } = useRequest(getStatusList);
+  const { data: priorityList } = useRequest(getPriorityList);
+
+
+  
+  // const [selectedTypeTask, setSelectedTypeTask] = useState(null);
+  // const [selectedStatus, setSelectedStatus] = useState(null);
+  // const [selectedPriority, setSelectedPriority] = useState(null);
+
   const [task, setTask] = useState({
-   
-    taskName:"",
+    taskName: "",
     description: "",
     statusId: "",
     typeId: "",
-    priorityId:"",
-    listUserAsign: [null]
-  }); 
-  console.log(task);
-  const handleClick = (event) => {
-    console.log(event);
-    setTypeTask(event.currentTarget); 
-    console.log(typeTask);
-  };
+    priorityId: "",
+    listUserAsign: [null],
+  });
 
-  const handleClose = () => {
-    setTypeTask(null);
-  };
-  const handleSelected = () => {
-    setTypeTask("efgh");
-  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  const openTypeTask = Boolean(typeTask);
-  const idTypeTask = openTypeTask ? "simple-popover" : undefined;
-  // const open = Boolean(typeTask);
-  // const id = open ? "simple-popover" : undefined;
-  // const open = Boolean(typeTask);
-  // const id = open ? "simple-popover" : undefined;
-  // const open = Boolean(typeTask);
-  // const id = open ? "simple-popover" : undefined;
-
+    
+    setTask((current) => {
+      return {
+        ...current,
+        [name]: value,
+      };
+    });
+  };
+  let descriptionEdit = null;
   const handleEditorChange = (content, editor) => {
-    console.log(content);
+    descriptionEdit = content;
   };
+
+  const activeTypeTaskStyle = (id, theme) => {
+    if (task?.typeId === id) {
+      return {
+        backgroundColor: theme.palette.secondary.main,
+        color: theme.palette.common.white,
+      };
+    }
+  };
+
+  const activeStatusStyle = (statusId, theme) => {
+    if (task?.statusId=== statusId) {
+      return {
+        backgroundColor: theme.palette.secondary.main,
+        color: theme.palette.common.white,
+      };
+    }
+  };
+
+  const activePriorityStyle = (priorityId, theme) => {
+    if (task?.priorityId === priorityId) {
+      return {
+        backgroundColor: theme.palette.secondary.main,
+        color: theme.palette.common.white,
+      };
+    }
+  };
+ 
   useEffect(() => {
-   
-    dispatch(getSearchTaskThunk(taskId));
+   dispatch(getSearchTaskThunk(taskId));
+   console.log(taskDetail);
   }, [taskId]);
+  useEffect(() => {
+    if (taskDetail) { 
+    setTask(taskDetail);
+  }
+}, [taskDetail]);
+
+
+  const onSubmit = async () => {};
   return (
-    <Container maxWidth="xl">
-      <Grid container spacing={2}>
-        <Grid item xs={8}>
-          <Box sx={{ textAlign: "left" }}>
-            <Box>
-              <Button
-                sx={{ color: "#000" }}
-                aria-describedby={idTypeTask}
-                variant="outlined"
-                onClick={handleClick}
-              >
-                {typeTask? "abc" : taskDetail?.taskTypeDetail?.taskType}
-              </Button>
-              
-              <Popover
-                id={idTypeTask}
-                open={openTypeTask}
-                anchorEl={typeTask}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-              > 
-               <MenuItem
-                  name="typeId"
-                  value="bug"
-                   sx={{width: "151px"}} 
-                   onClick={handleSelected}>
-Bug
-                 
-                  
-                </MenuItem>
-                <MenuItem
-                  name="typeId"
-                  value="new task"
-                   sx={{width: "151px"}} 
-                   onClick={handleSelected}>
-New Task
-                 
-                  
-                </MenuItem>
-
-              
-               
-              </Popover>
-            </Box>
-            <Typography
-              fontWeight={700}
-              variant="h4"
-              component="h4"
-              marginBottom={2}
-            >
-              Task Details
+    <Container sx={{ marginTop: "32px" }} maxWidth="xl">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Grid container >
+          <Grid item xs={7}>
+            
+            <Typography variant="h5" fontWeight={700}>
+              Task details
             </Typography>
-            <TitleStyle>Description</TitleStyle>
-            <Box marginBottom={2}>
-              <Editor
-                initialValue="{project?.description}"
-                init={{
-                  height: 300,
-                  menubar: false,
-                  plugins: [
-                    "advlist",
-                    "autolink",
-                    "lists",
-                    "link",
-                    "image",
-                    "charmap",
-                    "preview",
-                    "anchor",
-                    "searchreplace",
-                    "visualblocks",
-                    "code",
-                    "fullscreen",
-                    "insertdatetime",
-                    "media",
-                    "table",
-                    "code",
-                    "help",
-                    "wordcount",
-                  ],
-                  toolbar:
-                    "undo redo | blocks | " +
-                    "bold italic forecolor | alignleft aligncenter " +
-                    "alignright alignjustify | bullist numlist outdent indent | " +
-                    "removeformat | help",
-                  content_style:
-                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                }}
-                onEditorChange={handleEditorChange}
-              />
-            </Box>
-            <TitleStyle>Comments</TitleStyle>
-
-            <Grid
-              marginTop={1}
-              marginLeft={2}
-              container
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-            >
-              <Avatar src="https://res.cloudinary.com/dvujyxh7e/image/upload/c_scale,w_48/v1593253478/trung-vo_bioxmc.png"></Avatar>
-              <Typography variant="h6" component="h6" marginLeft={2}>
-                NAME
-              </Typography>
-            </Grid>
-            <TextField
-              sx={{ marginLeft: "20px", marginTop: "5px", width: "95%" }}
-            ></TextField>
-            <Box marginTop={2}>
-              <Button variant="contained" color="success">
-                Update
-              </Button>
-              <Button
-                sx={{ marginLeft: "5px" }}
-                variant="outlined"
-                color="error"
-              >
-                Cancle
-              </Button>
-            </Box>
-          </Box>
-        </Grid>
-        <Grid item xs={4}>
-          <Box sx={{ textAlign: "right" }}>
-            <Button onClick={() => {}} color="primary">
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
-          </Box>
-          <Box sx={{ textAlign: "left" }}>
-            {/* <Box>
-              <TitleStyle>STATUS</TitleStyle>
-              <Button
-                sx={{
-                  fontWeight: 400,
-                  backgroundColor: colors.teal[100],
-                  color: "#000",
-                }}
-                aria-describedby={id}
-                variant="contained"
-                onClick={handleClick}
-              >
-                Name Type Text
-              </Button>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={typeTask}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-              >
-                <MenuItem sx={{ width: 160 }} onClick={handleSelected}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handleSelected}>My account</MenuItem>
-                <MenuItem onClick={handleSelected}>Logout</MenuItem>
-              </Popover>
-            </Box>
-            <Box sx={{ marginTop: "90px" }}>
-              <TitleStyle>REPORTER</TitleStyle>
-              <Button
-                sx={{
-                  fontWeight: 400,
-                  backgroundColor: colors.teal[100],
-                  color: "#000",
-                }}
-                aria-describedby={id}
-                variant="text"
-                onClick={handleClick}
-              >
-                Name Type Text
-              </Button>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={typeTask}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-              >
-                <MenuItem sx={{ width: 151 }} onClick={handleSelected}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handleSelected}>My account</MenuItem>
-                <MenuItem onClick={handleSelected}>Logout</MenuItem>
-              </Popover>
-            </Box> */}
-            <BoxStyle>
-              <TitleStyle>ASSIGNEES</TitleStyle>
-              <Grid container rowSpacing={1}>
-                <Grid container item xs={5} >
-                  {" "}
-                  <Box
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{
-                      fontWeight: 400,
-                      backgroundColor: colors.teal[100],
-                      color: "#000",
-                      display: "flex",
-                    }}
-                  >
-                    <Avatar
-                      sx={{ width: "25px", height: "25px" }}
-                      src="https://res.cloudinary.com/dvujyxh7e/image/upload/c_scale,w_48/v1593253478/trung-vo_bioxmc.png"
-                    ></Avatar>
-                    <Typography sx={{ fontSize: "16px" }} marginLeft={1}>
-                      NAME
-                    </Typography>
-                    <button
-                      style={{
-                        width: "20px",
-                        border: "none",
-                        backgroundColor: colors.teal[100],
-                        cursor:"pointer"
-                      }}
-                      onClick={() => {}}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </Box>
-                </Grid>
-                <Grid container item xs={4}>
-                  {" "}
-                  <Box
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{
-                      fontWeight: 400,
-                      backgroundColor: colors.teal[100],
-                      color: "#000",
-                      display: "flex",
-                    }}
-                  >
-                    <Avatar
-                      sx={{ width: "25px", height: "25px" }}
-                      src="https://res.cloudinary.com/dvujyxh7e/image/upload/c_scale,w_48/v1593253478/trung-vo_bioxmc.png"
-                    ></Avatar>
-                    <Typography sx={{ fontSize: "16px" }} marginLeft={1}>
-                      NAME
-                    </Typography>
-                    <button
-                      style={{
-                        width: "20px",
-                        border: "none",
-                        backgroundColor: colors.teal[100],
-                        cursor:"pointer"
-                      }}
-                      onClick={() => {}}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </Box>
-                </Grid>
-                <Grid container item xs={4}>
-                  {" "}
-                  <Box
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{
-                      fontWeight: 400,
-                      backgroundColor: colors.teal[100],
-                      color: "#000",
-                      display: "flex",
-                    }}
-                  >
-                    <Avatar
-                      sx={{ width: "25px", height: "25px" }}
-                      src="https://res.cloudinary.com/dvujyxh7e/image/upload/c_scale,w_48/v1593253478/trung-vo_bioxmc.png"
-                    ></Avatar>
-                    <Typography sx={{ fontSize: "16px" }} marginLeft={1}>
-                      NAME
-                    </Typography>
-                    <button
-                   
-                      style={{
-                        width: "20px",
-                        border: "none",
-                        backgroundColor: colors.teal[100],
-                         cursor:"pointer"
-                      }}
-                      onClick={() => {}}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </Box>
+            <Grid marginTop={2} container>
+              <Grid >
+                <Typography
+                  sx={{ display: "block", marginBottom: "16px" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  TYPE TASK
+                </Typography>
+                <Grid >
+                  <StyleSelection>
+                    {typeTaskList?.map((item) => (
+                      <Chip
+                        key={item.id}
+                        name="typeId"
+                        value={item.id}
+                        sx={(theme) => ({
+                          color:
+                            item.taskType === categoryTypeTaskMap["2"]
+                              ? colors.green[500]
+                              : colors.amber[500],
+                          backgroundColor:
+                            item.taskType === categoryTypeTaskMap["1"]
+                              ? alpha(colors.green[50], 0.2)
+                              : colors.amber[50],
+                          "&:hover": {
+                            backgroundColor:
+                              task?.typeId === item.id
+                                ? theme.palette.secondary.light
+                                : item.taskType === categoryTypeTaskMap["2"]
+                                ? alpha(theme.palette.primary.main, 0.2)
+                                : item.taskType === categoryTypeTaskMap["1"]
+                                ? colors.green[100]
+                                : colors.amber[100],
+                          },
+                          ...activeTypeTaskStyle(item.id, theme),
+                        })}
+                        onClick={() => {
+                          console.log("item", item.id);
+                          console.log(categoryTypeTaskMap["1"]);
+                          
+                          setTask((current) => {
+                            return {
+                              ...current,
+                              typeId: item.id,
+                            };
+                          });
+                        }}
+                        label={
+                          item.taskType === categoryTypeTaskMap["1"]
+                            ? "Bug"
+                            : "New task"
+                        }
+                      />
+                    ))}
+                  </StyleSelection>
+                  <InputLabel></InputLabel>
                 </Grid>
               </Grid>
-            </BoxStyle>
-            {/* <Box sx={{ marginTop: "90px" }}>
-              <TitleStyle>REPORTER</TitleStyle>
-              <Button
-                sx={{
-                  fontWeight: 400,
-                  backgroundColor: colors.teal[100],
-                  color: "#000",
-                }}
-                aria-describedby={id}
-                variant="text"
-                onClick={handleClick}
-              >
-                Name Type Text
-              </Button>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={typeTask}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-              >
-                <MenuItem sx={{ width: 151 }} onClick={handleSelected}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handleSelected}>My account</MenuItem>
-                <MenuItem onClick={handleSelected}>Logout</MenuItem>
-              </Popover>
-            </Box> */}
-            <BoxStyle>
-            <Typography>abcsacs</Typography>
-            <Typography>abcsacs</Typography>
-</BoxStyle>
-          </Box>
+            </Grid>
+            <Grid sx={{ textAlign: "left" }} container>
+              <Grid marginTop={2} xs={4} item>
+                <InputLabel
+                  sx={{
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: colors.grey[900],
+                  }}
+                >
+                  Task Name
+                </InputLabel>
+                <TextField
+                  size="small"
+                  value={task?.taskName}
+                  name="taskName"
+                  onChange={handleChange}
+                  placeholder="Input your task's name"
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid marginTop={2} container>
+              <Grid marginBottom={1} >
+                <Typography
+                  sx={{ display: "block" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  Write description
+                </Typography>
+              </Grid>
+              <Grid xs={11} item>
+                <Editor
+                  initialValue={task?.description}
+                  init={{
+                    height: 300,
+                    menubar: false,
+                    plugins: [
+                      "advlist",
+                      "autolink",
+                      "lists",
+                      "link",
+                      "image",
+                      "charmap",
+                      "preview",
+                      "anchor",
+                      "searchreplace",
+                      "visualblocks",
+                      "code",
+                      "fullscreen",
+                      "insertdatetime",
+                      "media",
+                      "table",
+                      "code",
+                      "help",
+                      "wordcount",
+                    ],
+                    toolbar:
+                      "undo redo | blocks | " +
+                      "bold italic forecolor | alignleft aligncenter " +
+                      "alignright alignjustify | bullist numlist outdent indent | " +
+                      "removeformat | help",
+                    content_style:
+                      "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                  }}
+                  onEditorChange={handleEditorChange}
+                />
+              </Grid>
+            </Grid>
+         </Grid>
+          <Grid item xs={5} marginTop={5}>
+            <Grid marginTop={2} container>
+              <Grid item xs={12}>
+                <Typography
+                  sx={{ display: "block", marginBottom: "16px" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  STATUS
+                </Typography>
+                <Grid item xs={12}>
+                  <StyleSelection>
+                    {statusList?.map((item) => (
+                      <Chip
+                        key={item.statusId}
+                        name="statusId"
+                        value={item.statusId}
+                        sx={(theme) => ({
+                          color:
+                            item.statusName === categoryStatusMap["1"]
+                              ? theme.palette.primary.light
+                              : item.statusName === categoryStatusMap["2"]
+                              ? colors.green[500]
+                              : item.statusName === categoryStatusMap["3"]
+                              ? colors.amber[500]
+                              : colors.red[500],
+                          backgroundColor:
+                            item.statusName === categoryStatusMap["1"]
+                              ? alpha(theme.palette.primary.light, 0.2)
+                              : item.statusName === categoryStatusMap["2"]
+                              ? colors.green[50]
+                              : item.statusName === categoryStatusMap["3"]
+                              ? colors.amber[50]
+                              : colors.red[50],
+                          "&:hover": {
+                            backgroundColor:
+                            task?.statusId === item.statusId
+                                ? theme.palette.secondary.light
+                                : item.statusName === categoryStatusMap["1"]
+                                ? alpha(theme.palette.primary.main, 0.2)
+                                : item.statusName === categoryStatusMap["3"]
+                                ? colors.green[100]
+                                : item.statusName === categoryStatusMap["2"]
+                                ? colors.amber[100]
+                                : colors.red[100],
+                          },
+                          ...activeStatusStyle(item.statusId, theme),
+                        })}
+                        onClick={() => {
+                         
+                        
+                          setTask((current) => {
+                            return {
+                              ...current,
+                              statusId: item.statusId,
+                            };
+                          });
+                        }}
+                        label={item.statusName}
+                      />
+                    ))}
+                  </StyleSelection>
+                  
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid marginTop={2} container>
+              <Grid>
+                <Typography
+                  sx={{ display: "block", marginBottom: "16px" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  PRIORITY
+                </Typography>
+                <Grid item xs={12}>
+                  <StyleSelection>
+                    {priorityList?.map((item) => (
+                      <Chip
+                        key={item.priorityId}
+                        name="priorityId"
+                        value={item.priorityId}
+                        sx={(theme) => ({
+                          color:
+                            item.priority === categoryPriorityMap["1"]
+                              ? theme.palette.primary.light
+                              : item.priority === categoryPriorityMap["2"]
+                              ? colors.green[500]
+                              : item.priority === categoryPriorityMap["3"]
+                              ? colors.amber[500]
+                              : colors.red[500],
+                          backgroundColor:
+                            item.priority === categoryPriorityMap["1"]
+                              ? alpha(theme.palette.primary.light, 0.2)
+                              : item.priority === categoryPriorityMap["2"]
+                              ? colors.green[50]
+                              : item.priority === categoryPriorityMap["3"]
+                              ? colors.amber[50]
+                              : colors.red[50],
+                          "&:hover": {
+                            backgroundColor:
+                            task?.priorityId === item.priorityId
+                                ? theme.palette.secondary.light
+                                : item.priority === categoryPriorityMap["1"]
+                                ? alpha(theme.palette.primary.main, 0.2)
+                                : item.priority === categoryPriorityMap["2"]
+                                ? colors.green[100]
+                                : item.priority === categoryPriorityMap["3"]
+                                ? colors.amber[100]
+                                : colors.red[100],
+                          },
+                          ...activePriorityStyle(item.priorityId, theme),
+                        })}
+                        onClick={() => {
+                       
+                         
+                          setTask((current) => {
+                            return {
+                              ...current,
+                              priorityId: item.priorityId,
+                            };
+                          });
+                        }}
+                        label={item.priority}
+                      />
+                    ))}
+                  </StyleSelection>
+                  
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid marginTop={2} container>
+              <Grid>
+                <Typography
+                  sx={{ display: "block", marginBottom: "16px" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  PRIORITY
+                </Typography>
+                <Grid item xs={12}>
+                <Members members={taskDetail?.assigness} projectId={taskDetail?.taskId} />
+                
+                  
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Grid marginTop={4} container>
+              <Box>
+                <Button
+                  type="submit"
+                  sx={{ borderRadius: "8px" }}
+                  variant="contained"
+                  color="primary"
+                >
+                  Update Project
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Grid>
-      </Grid>
+      </form>
     </Container>
   );
 };

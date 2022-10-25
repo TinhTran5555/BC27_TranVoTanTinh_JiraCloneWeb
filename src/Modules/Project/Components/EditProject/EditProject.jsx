@@ -115,12 +115,9 @@ export default function EditProject(projectId) {
     description: "",
     categoryId: "",
     id: "",
-  }); 
+  });
 
-  const [selectedCategory, setSelectedCategory] = useState(null); //
-  // const [description, setDescription] = useState(null); //
-  // const [tfValue, setTFValue] = useState(null); //
-  const editorRef = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -141,7 +138,6 @@ export default function EditProject(projectId) {
         [name]: value,
       };
     });
-  
   };
   let descriptionEdit = null;
   const handleEditorChange = (content, editor) => {
@@ -160,9 +156,9 @@ export default function EditProject(projectId) {
   }, [projectDetail]);
 
   const onSubmit = async () => {
-    let descriptionValue = project.description
+    let descriptionValue = project.description;
     if (descriptionEdit != null) {
-      descriptionValue = descriptionEdit
+      descriptionValue = descriptionEdit;
     }
 
     let idCategory = projectDetail?.projectCategory.id;
@@ -235,7 +231,7 @@ export default function EditProject(projectId) {
     <Container sx={{ marginTop: "32px", width: 700 }} maxWidth="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h5" fontWeight={700}>
-          Create New Project
+          Edit Project
         </Typography>
         <Grid2 sx={{ textAlign: "left" }} container>
           <Grid2 marginTop={2} xs={4}>
@@ -295,9 +291,7 @@ export default function EditProject(projectId) {
             onChange={handleChange}
           ></textarea> */}
           <Grid2 xs={12}>
-          
             <Editor
-              
               initialValue={project?.description}
               init={{
                 height: 300,

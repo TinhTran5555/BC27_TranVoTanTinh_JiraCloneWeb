@@ -55,7 +55,7 @@ const Card = ({ taskDetail }) => {
   const GoToTask = (taskId) => {
     
    
-    dispatch(getSearchTaskThunk(taskId));
+    // dispatch(getSearchTaskThunk(taskId));
     navigate(`/project/${projectId}/${taskId}`);
   };
 

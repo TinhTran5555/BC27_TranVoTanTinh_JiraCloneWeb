@@ -48,7 +48,7 @@ const ProjectDeatail = () => {
         <Grid >
           <Heading >
             <Typography marginRight={2} fontWeight={700} variant="h5" component="h2">
-              {projectDetail.projectName}
+              {projectDetail.projectName} 
             </Typography>
             
               <AvatarGroup max={5}>{projectDetail?.members?.map((member) => (
