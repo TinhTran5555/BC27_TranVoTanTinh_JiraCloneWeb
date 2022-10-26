@@ -120,27 +120,28 @@ const projectSlice = createSlice({
       });
       builder
       .addCase(getProjectDetailThunk.pending, (state) => {
-       
+  
       })
       .addCase(getProjectDetailThunk.fulfilled, (state, { payload }) => {
-       
+        
         state.projectDetail = payload;
       })
       .addCase(getProjectDetailThunk.rejected, (state, { payload }) => {
-      
+        
         state.error = payload;
      
       });
       builder
       .addCase(getSearchTaskThunk.pending, (state) => {
+        state.isLoading = true;
        
       })
       .addCase(getSearchTaskThunk.fulfilled, (state, { payload }) => {
-       
+        state.isLoading = false; 
         state.taskDetail = payload;
       })
       .addCase(getSearchTaskThunk.rejected, (state, { payload }) => {
-      
+        state.isLoading = false;
         state.error = payload;
      
       });
