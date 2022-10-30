@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import "draft-js/dist/Draft.css";
 import {
   Chip,
@@ -12,19 +12,26 @@ import {
   Alert,
   Button,
   Grid,
+  Select,
+  OutlinedInput,
+  MenuItem,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { Container } from "@mui/system";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
 import statusList from "../../../../app/apis/statusList/statusList";
+import { projectSelector } from "../../../../app/store";
 import priorityList from "../../../../app/apis/priorityList/priorityList";
 import { useForm } from "react-hook-form";
 import { Editor } from "@tinymce/tinymce-react";
 import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { createTaskThunk } from "../../slice/projectSlice";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getUserByProjectIdThunk,
+  createTaskThunk,
+} from "../../slice/projectSlice";
 
 const { getTypeTaskList } = typeTaskList;
 const { getStatusList } = statusList;
@@ -52,6 +59,16 @@ const StyleSelection = styled(Box)(({ theme }) => ({
   alignItems: "center",
   flexWrap: "wrap",
 }));
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const alertCase = {
   loading: "ALERT_LOADING",
@@ -92,25 +109,34 @@ const alertReducer = (state, { type, payload }) => {
 };
 
 const CreateTask = () => {
-const { projectId } = useParams();
+  const { projectId } = useParams();
+  const { userProject } = useSelector(projectSelector);
 
   const { data: typeTaskList } = useRequest(getTypeTaskList);
   const { data: statusList } = useRequest(getStatusList);
   const { data: priorityList } = useRequest(getPriorityList);
   const dispatch = useDispatch();
 
-
+  const [listUser, setListUser] = React.useState([]);
   const [task, setTask] = useState({
-    projectId : projectId, 
-    listUserAsign: [],
+    projectId: projectId,
+
     description: "null",
     statusId: null,
     typeId: null,
     priorityId: null,
     taskName: "",
   });
+  const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setListUser(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
 
- 
   const activeTypeTaskStyle = (id, theme) => {
     if (task?.typeId === id) {
       return {
@@ -152,7 +178,6 @@ const { projectId } = useParams();
   });
 
   const onSubmit = async () => {
-
     try {
       dispatchAlert({ type: alertCase.loading });
       if (!task.typeId) {
@@ -176,12 +201,18 @@ const { projectId } = useParams();
         });
         return;
       }
+      let taskInfo = {
+        projectId: projectId,
+        listUserAsign: listUser,
+        description: task.description,
+        statusId: task.statusId,
+        typeId: task.typeId,
+        priorityId: task.priorityId,
+        taskName: task.taskName,
+      };
+      console.log(taskInfo);
 
-
-     
-
-   
-      const data = await dispatch(createTaskThunk(task)).unwrap();
+      const data = await dispatch(createTaskThunk(taskInfo)).unwrap();
       dispatchAlert({
         type: alertCase.success,
       });
@@ -204,6 +235,10 @@ const { projectId } = useParams();
       };
     });
   };
+  useEffect(() => {
+    dispatch(getUserByProjectIdThunk(projectId));
+  }, [projectId]);
+
   return (
     <Container sx={{ marginTop: "32px" }} maxWidth="xl">
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -483,6 +518,39 @@ const { projectId } = useParams();
                       />
                     ))}
                   </StyleSelection>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid marginTop={2} container>
+              <Grid>
+                <Typography
+                  sx={{ display: "block", marginBottom: "16px" }}
+                  align="left"
+                  variant="subtitle1"
+                  fontWeight={700}
+                >
+                  Assigness
+                </Typography>
+                <Grid item xs={12}>
+                  <Select
+                    sx={{ width: "300px" }}
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    multiple
+                    value={listUser}
+                    onChange={handleChange}
+                    MenuProps={MenuProps}
+                    inputProps={{ "aria-label": "Without label" }}
+                  >
+                    <MenuItem disabled value="">
+                      <em>Placeholder</em>
+                    </MenuItem>
+                    {userProject?.map((user) => (
+                      <MenuItem key={user.userId} value={user.userId}>
+                        {user.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </Grid>
               </Grid>
             </Grid>

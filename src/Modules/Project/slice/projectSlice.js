@@ -6,6 +6,7 @@ const initialState = {
   projects: [],
   projectDetail: [],
   taskDetail: [],
+  userProject: [],
   isLoading: false,
   error: "",
 };
@@ -26,6 +27,7 @@ const {
   updateTask,
   removeTask,
   createTask,
+  getUserProjectId
 } = projectAPIs;
 
 export const getAllProjectsThunk = thunk.request(
@@ -81,6 +83,10 @@ export const updateStatusTaskThunk = thunk.request(
   "task/updateStatusTask",
   updateStatusTask
 );
+export const getUserByProjectIdThunk = thunk.request(
+  "task/getUserProjectId",
+  getUserProjectId
+);
 export const removeTaskThunk = thunk.request("task/removeTask", removeTask);
 export const createTaskThunk = thunk.request("task/createTask", createTask);
 
@@ -130,6 +136,18 @@ const projectSlice = createSlice({
         state.taskDetail = payload;
       })
       .addCase(getSearchTaskThunk.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        state.error = payload;
+      });
+      builder
+      .addCase(getUserByProjectIdThunk.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getUserByProjectIdThunk.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.userProject = payload;
+      })
+      .addCase(getUserByProjectIdThunk.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.error = payload;
       });

@@ -191,7 +191,7 @@ const List = ({ listTask }) => {
                           <Box  onClick={() => {
   
                   GoToTask(task.taskId) 
-                }}  sx={{width:"100%"}}
+                }}  sx={{width:"100%" , minHeight: "70px"}}
                           >
                             <TextTaskDetail> {task?.taskName}</TextTaskDetail>
                             <BoxItemDetail>

@@ -30,6 +30,13 @@ const projectAPIs = {
       params,
     });
   },
+  getUserProjectId: (idProject) => {
+    const params = new URLSearchParams();
+    params.append("idProject", idProject);
+    return axiosClient.get("Users/getUserByProjectId", {
+      params,
+    });
+  },
   createProject: (projectInfo) => {
     console.log(projectInfo);
     return axiosClient.post("Project/createProjectAuthorize", projectInfo);
