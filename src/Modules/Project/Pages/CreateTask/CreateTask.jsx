@@ -13,10 +13,9 @@ import {
   Button,
   Grid,
   Select,
-  OutlinedInput,
   MenuItem,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { Container } from "@mui/system";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
@@ -26,7 +25,7 @@ import { projectSelector } from "../../../../app/store";
 import priorityList from "../../../../app/apis/priorityList/priorityList";
 import { useForm } from "react-hook-form";
 import { Editor } from "@tinymce/tinymce-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getUserByProjectIdThunk,
@@ -40,6 +39,7 @@ const categoryTypeTaskMap = {
   1: "bug",
   2: "new task",
 };
+
 const categoryStatusMap = {
   1: "BACKLOG",
   2: "SELECTED FOR DEVELOPMENT",
@@ -116,7 +116,7 @@ const CreateTask = () => {
   const { data: statusList } = useRequest(getStatusList);
   const { data: priorityList } = useRequest(getPriorityList);
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const [listUser, setListUser] = React.useState([]);
   const [task, setTask] = useState({
     projectId: projectId,
@@ -567,6 +567,18 @@ const CreateTask = () => {
                 disabled={alertState.isLoading}
               >
                 Add Task
+              </Button>
+            </Box>
+            <Box sx={{ marginLeft: "20px" }}>
+              <Button
+                onClick={() => {
+                  navigate(`/project/${projectId}`);
+                }}
+                sx={{ borderRadius: "8px" }}
+                variant="outlined"
+                color="secondary"
+              >
+                Cancle
               </Button>
             </Box>
           </Grid>

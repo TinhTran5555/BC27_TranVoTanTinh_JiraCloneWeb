@@ -3,10 +3,12 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Loader from "./UI/Display/Loader/Loader";
-import CheckoutRoute from "./Routes/CheckoutRoute";
+
 const Login = React.lazy(() => import("./Modules/Auth/Components/Login"));
 const Register = React.lazy(() => import("./Modules/Auth/Components/Register"));
-const CreateTask = React.lazy(() => import("./Modules/Project/Pages/CreateTask"));
+const CreateTask = React.lazy(() =>
+  import("./Modules/Project/Pages/CreateTask")
+);
 const MainLayout = React.lazy(() => import("./UI/Layout/MainLayout/Pages"));
 const ProjectDetail = React.lazy(() =>
   import("./Modules/Project/Pages/ProjectDetail")
@@ -32,29 +34,18 @@ function App() {
         }
       >
         <Routes>
-          <Route
-            path="/"
-            element={
-              <CheckoutRoute>
-                <MainLayout path="/project" />
-              </CheckoutRoute>
-            }
-          ></Route>
-          <Route path="/" element={<CheckoutRoute />}>
-            <Route path="/project" element={<MainLayout />}>
-            
-              <Route path="/project" element={<Project />} />
-              <Route
-                path="/project/create-project"
-                element={<CreateProject />}/>
-                
-              <Route path="/project/edit-project" element={<EditProject />} />
-              <Route path="/project/:projectId" element={<ProjectDetail />} />
-              <Route path="/project/:projectId/create-task" element={<CreateTask/>} />
-              <Route path="/project/:projectId/:taskId" element={<Task />} />
-            </Route>
+          <Route path="/" element={<MainLayout path="/project" />}></Route>
+          <Route path="/project" element={<MainLayout />}>
+            <Route path="/project" element={<Project />} />
+            <Route path="/project/create-project" element={<CreateProject />} />
+            <Route path="/project/edit-project" element={<EditProject />} />
+            <Route path="/project/:projectId" element={<ProjectDetail />} />
+            <Route
+              path="/project/:projectId/create-task"
+              element={<CreateTask />}
+            />
+            <Route path="/project/:projectId/:taskId" element={<Task />} />
           </Route>
-
           <Route path="/">
             <Route path="/login" element={<Login />}></Route>
             <Route path="/register" element={<Register />}></Route>
