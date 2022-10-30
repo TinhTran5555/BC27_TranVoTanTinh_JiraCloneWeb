@@ -1,38 +1,34 @@
+import React, { useReducer, useState } from "react";
+import "draft-js/dist/Draft.css";
 import {
-  Grid,
-  styled,
-  Box,
-  Typography,
-  Button,
-  colors,
   Chip,
   InputLabel,
+  Box,
+  TextField,
+  Typography,
+  colors,
   alpha,
+  styled,
+  Alert,
+  Button,
+  Grid,
 } from "@mui/material";
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { Container } from "@mui/system";
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { projectSelector } from "../../../../app/store";
-import { Editor } from "@tinymce/tinymce-react";
-import { getSearchTaskThunk, updateTaskThunk ,removeTaskThunk } from "../../slice/projectSlice";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
 import statusList from "../../../../app/apis/statusList/statusList";
 import priorityList from "../../../../app/apis/priorityList/priorityList";
-import MembersTask from "../../Components/MembersTask/MembersTask";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { Editor } from "@tinymce/tinymce-react";
+import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { createTaskThunk } from "../../slice/projectSlice";
+
+
 const { getTypeTaskList } = typeTaskList;
 const { getStatusList } = statusList;
 const { getPriorityList } = priorityList;
-const StyleSelection = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "flex-start",
-  gap: "8px",
-  alignItems: "center",
-  flexWrap: "wrap",
-}));
 const categoryTypeTaskMap = {
   1: "bug",
   2: "new task",
@@ -49,41 +45,72 @@ const categoryPriorityMap = {
   3: "Low",
   4: "Lowest",
 };
+const StyleSelection = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "flex-start",
+  gap: "8px",
+  alignItems: "center",
+  flexWrap: "wrap",
+}));
 
-const Task = () => {
-  
-  const { taskId } = useParams();
+const alertCase = {
+  loading: "ALERT_LOADING",
+  error: "ALERT_ERROR",
+  success: "ALERT_SUCCESS",
+};
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { taskDetail } = useSelector(projectSelector);
+const initialAlertState = {
+  isLoading: false,
+  errorMessage: "",
+  successMessage: "",
+};
 
-  const {
-    handleSubmit,
+const alertReducer = (state, { type, payload }) => {
+  switch (type) {
+    case alertCase.loading:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case alertCase.error:
+      return {
+        ...state,
+        isLoading: false,
+        successMessage: "",
+        errorMessage: payload,
+      };
+    case alertCase.success:
+      return {
+        ...state,
+        isLoading: false,
+        errorMessage: "",
+        successMessage: "Create Project Successfully",
+      };
+    default:
+      return state;
+  }
+};
 
-    formState: {  },
-  } = useForm({
-    mode: "onBlur",
-    defaultValues: {},
-  });
+const CreateTask = () => {
+const { projectId } = useParams();
+
   const { data: typeTaskList } = useRequest(getTypeTaskList);
   const { data: statusList } = useRequest(getStatusList);
   const { data: priorityList } = useRequest(getPriorityList);
+  const dispatch = useDispatch();
+
 
   const [task, setTask] = useState({
+    projectId : projectId, 
+    listUserAsign: [],
+    description: "null",
+    statusId: null,
+    typeId: null,
+    priorityId: null,
     taskName: "",
-    description: "",
-    statusId: "",
-    typeId: "",
-    priorityId: "",
   });
 
-
-  let descriptionEdit = null;
-  const handleEditorChange = (content, editor) => {
-    descriptionEdit = content;
-  };
-
+ 
   const activeTypeTaskStyle = (id, theme) => {
     if (task?.typeId === id) {
       return {
@@ -110,43 +137,120 @@ const Task = () => {
       };
     }
   };
+  const [alertState, dispatchAlert] = useReducer(
+    alertReducer,
+    initialAlertState
+  );
 
-  useEffect(() => {
-    dispatch(getSearchTaskThunk(taskId));
-  }, [taskId]);
-  useEffect(() => {
-    if (taskDetail) {
-      setTask(taskDetail);
-    }
-  }, [taskDetail]);
-
-
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {},
+  });
 
   const onSubmit = async () => {
+
     try {
-      let taskInfo = "" ;
-      if (descriptionEdit !== null) {
-         taskInfo = { ...task, description: descriptionEdit };
-      } else {
-      taskInfo = { ...task };
-}
-      const data = await dispatch(updateTaskThunk(taskInfo)).unwrap();
-      
-      dispatch(getSearchTaskThunk(taskId));
+      dispatchAlert({ type: alertCase.loading });
+      if (!task.typeId) {
+        dispatchAlert({
+          type: alertCase.error,
+          payload: "You haven't selected type ",
+        });
+        return;
+      }
+      if (!task.statusId) {
+        dispatchAlert({
+          type: alertCase.error,
+          payload: "You haven't selected status",
+        });
+        return;
+      }
+      if (!task.priorityId) {
+        dispatchAlert({
+          type: alertCase.error,
+          payload: "You haven't selected priority",
+        });
+        return;
+      }
+
+
+     
+
+   
+      const data = await dispatch(createTaskThunk(task)).unwrap();
+      dispatchAlert({
+        type: alertCase.success,
+      });
+
       return data;
     } catch (error) {
       console.log(error);
+      dispatchAlert({
+        type: alertCase.error,
+        payload: error,
+      });
     }
   };
-  
+
+  const handleEditorChange = (content, editor) => {
+    setTask((current) => {
+      return {
+        ...current,
+        description: content,
+      };
+    });
+  };
   return (
     <Container sx={{ marginTop: "32px" }} maxWidth="xl">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container>
           <Grid item xs={7}>
             <Typography variant="h5" fontWeight={700}>
-              Task details
+              Create New Task
             </Typography>
+            <Grid sx={{ textAlign: "left" }} container>
+              <Grid item marginTop={2} xs={5}>
+                <InputLabel
+                  sx={{
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: colors.grey[900],
+                  }}
+                >
+                  Task Name
+                </InputLabel>
+                <TextField
+                  size="small"
+                  placeholder="Input your task's name"
+                  {...register("taskName", {
+                    required: {
+                      value: true,
+                      message: "This is required",
+                    },
+                    pattern: {
+                      value: /^[^'"!@#$%^&*()?,:;~`+=-]*$/,
+                      message: "Not contain special character",
+                    },
+                  })}
+                  fullWidth
+                  color={errors.taskName ? "error" : ""}
+                  error={!!errors.taskName}
+                  helperText={errors.taskName?.message}
+                  onChange={(e) => {
+                    setTask((current) => {
+                      return {
+                        ...current,
+                        taskName: e.target.value,
+                      };
+                    });
+                  }}
+                />
+              </Grid>
+            </Grid>
             <Grid marginTop={2} container>
               <Grid>
                 <Typography
@@ -205,22 +309,8 @@ const Task = () => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid sx={{ textAlign: "left" }} container>
-              <Grid marginTop={2} xs={4} item>
-              <Typography
-                  sx={{ display: "block" }}
-                  align="left"
-                  variant="subtitle1"
-                  fontWeight={700}
-                >
-                  Task Name 
-                </Typography>
-                <Typography>{task?.taskName}</Typography>
-              </Grid>
-              
-            </Grid>
-            <Grid marginTop={2} container>
-              <Grid marginBottom={1}>
+            <Grid2 marginTop={2} container>
+              <Grid2 marginBottom={1} xs={12}>
                 <Typography
                   sx={{ display: "block" }}
                   align="left"
@@ -229,10 +319,10 @@ const Task = () => {
                 >
                   Write description
                 </Typography>
-              </Grid>
-              <Grid xs={11} item>
+              </Grid2>
+              <Grid2 xs={8}>
                 <Editor
-                  initialValue={task?.description}
+                  placeholder="Write your task's description... "
                   init={{
                     height: 300,
                     menubar: false,
@@ -266,8 +356,8 @@ const Task = () => {
                   }}
                   onEditorChange={handleEditorChange}
                 />
-              </Grid>
-            </Grid>
+              </Grid2>
+            </Grid2>
           </Grid>
           <Grid item xs={5} marginTop={5}>
             <Grid marginTop={2} container>
@@ -396,74 +486,37 @@ const Task = () => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid marginTop={2} container>
-              <Grid>
-                <Typography
-                  sx={{ display: "block", marginBottom: "16px" }}
-                  align="left"
-                  variant="subtitle1"
-                  fontWeight={700}
-                >
-                  Assigness
-                </Typography>
-                <Grid item xs={12}>
-                  <MembersTask
-                    assigness={taskDetail?.assigness}
-                    taskId={taskDetail?.taskId}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-            
           </Grid>
-          <Grid item xs={12}>
-            <Grid marginTop={4} container>
-              <Box>
-                <Button
-                  type="submit"
-                  sx={{ borderRadius: "8px" }}
-                  variant="contained"
-                  color="primary"
-                >
-                  Update Task
-                </Button>
-              </Box>
-              <Box sx={{marginLeft: "20px"}}>
-                <Button
-                 sx={{ borderRadius: "8px" }}
-                 variant="contained"
-                 color="error"
-                  onClick={()=>{ try {
-                    dispatch(removeTaskThunk(taskDetail?.taskId)) ;
-                    navigate(`/project`);
-                  } catch (error) {
-                    console.log(error);
-                  } 
-                  } }
-                 
-                >
-                 Delete Task
-                </Button>
-              </Box>
-              <Box sx={{marginLeft: "20px"}}>
-                <Button
-                  onClick={()=> {
-                    navigate(`/project`);
-                  }}
-                  sx={{ borderRadius: "8px" }}
-                  variant="outlined"
-                  color="secondary"
-                >
-                  Cancle Task
-                </Button>
-              </Box>
-            </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid marginTop={4} container>
+            <Box>
+              <Button
+                type="submit"
+                sx={{ borderRadius: "8px" }}
+                variant="contained"
+                color="primary"
+                disabled={alertState.isLoading}
+              >
+                Add Task
+              </Button>
+            </Box>
           </Grid>
-          
         </Grid>
       </form>
+      <Grid container>
+        <Grid>
+          <Box marginTop={4}>
+            {alertState.errorMessage ? (
+              <Alert severity="error">{alertState.errorMessage}</Alert>
+            ) : alertState.successMessage ? (
+              <Alert severity="success">{alertState.successMessage}</Alert>
+            ) : null}
+          </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
 
-export default Task;
+export default CreateTask;

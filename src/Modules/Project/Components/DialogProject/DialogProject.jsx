@@ -15,8 +15,6 @@ const DialogProject = ({
   onClose,
   isDialogOpen,
   onControl,
-  payload,
-  status,
 }) => {
   return (
     <Dialog onClose={onClose} open={isDialogOpen}>

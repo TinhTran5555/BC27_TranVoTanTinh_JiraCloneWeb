@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-
 import { alpha, Container } from "@mui/system";
 import {
   Typography,
@@ -14,18 +13,11 @@ import {
   TableBody,
   Table,
   Button,
-  TextField,
-  InputBase,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
-
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-
-
-import projectAPIs from "../../../../app/apis/projectAPIs/projectAPIs";
-
 import Loader from "../../../../UI/Display/Loader";
 import Members from "../../Components/Members";
 import { useState } from "react";
@@ -35,13 +27,10 @@ import DialogProjectDelete from "../../Components/DialogProject/DialogProjectDel
 import {
   deleteProjectThunk,
   getAllProjectsThunk,
-  getProjectDetailThunk
+  getProjectDetailThunk,
 } from "../../slice/projectSlice";
 import { authSelector, projectSelector } from "../../../../app/store";
-import useAlert, {
-  alertCase,
-  initialAlertState,
-} from "../../../../app/hooks/alert/useAlert";
+import useAlert, { alertCase } from "../../../../app/hooks/alert/useAlert";
 import { useNavigate } from "react-router-dom";
 
 const Heading = styled(Box)(({ theme }) => ({
@@ -77,7 +66,6 @@ const Project = () => {
   const {
     projects,
     isLoading: getLoading,
-    error: projectError,
   } = useSelector(projectSelector);
 
   const deleteProjectHandler = async (id) => {
@@ -142,9 +130,7 @@ const Project = () => {
             variant="subtitle1"
             fontWeight={700}
             onClick={() => {
-           
               goToProjectDetail(id);
-           
             }}
           >
             {projectName}

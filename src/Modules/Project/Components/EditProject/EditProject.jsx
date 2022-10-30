@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState, useRef } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 
 import { Container } from "@mui/system";
@@ -16,7 +16,6 @@ import {
   Drawer,
 } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-// import RichTextEditor from "./RichTextEdit";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { faPen } from "@fortawesome/free-solid-svg-icons";
@@ -32,7 +31,6 @@ import {
   updateProjectThunk,
   getProjectDetailThunk,
 } from "../../slice/projectSlice";
-import { current } from "@reduxjs/toolkit";
 
 const { getProjectCategory } = projectCategory;
 const categoryProjectMap = {
@@ -129,7 +127,6 @@ export default function EditProject(projectId) {
     mode: "onBlur",
     defaultValues: {},
   });
-  //Neu em ko biet xai react-hook-form thi viet thuan
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProject((current) => {
@@ -157,12 +154,12 @@ export default function EditProject(projectId) {
 
   const onSubmit = async () => {
     let descriptionValue = project.description;
-    if (descriptionEdit != null) {
+    if (descriptionEdit !== null) {
       descriptionValue = descriptionEdit;
     }
 
     let idCategory = projectDetail?.projectCategory.id;
-    if (project.categoryId != undefined) {
+    if (project.categoryId !== undefined) {
       idCategory = project.categoryId;
     }
     const projectInfo = {
@@ -190,9 +187,6 @@ export default function EditProject(projectId) {
         });
         return;
       }
-
-      // const data = await dispatch(updateProjectThunk(projectInfo)).unwrap();
-
       dispatchAlert({
         type: alertCase.success,
         payload: "Edit Successfully",
@@ -223,11 +217,7 @@ export default function EditProject(projectId) {
     }
   };
 
-  // const watchEditor = (html) => {
-  //   setDescription(html);
-  // };
-
-  const list = (anchor) => (
+  const list = () => (
     <Container sx={{ marginTop: "32px", width: 700 }} maxWidth="lg">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h5" fontWeight={700}>
@@ -248,22 +238,8 @@ export default function EditProject(projectId) {
               size="small"
               value={project?.projectName}
               name="projectName"
-              // onChange={(event) => {
-              //   setTFValue(event.target.value);
-              // }}
               onChange={handleChange}
               placeholder="Input your project's name"
-              // {...register("projectName", {
-              //   required: {
-              //     value: true,
-              //     message: "This is required",
-              //   },
-              //   pattern: {
-              //     value: /^[^'"!@#$%^&*()?,:;~`+=-]*$/,
-              //     message: "Not contain special character",
-              //   },
-              // })}
-
               fullWidth
               color={errors.projectName ? "error" : ""}
               error={!!errors.projectName}
@@ -282,14 +258,6 @@ export default function EditProject(projectId) {
               Write description
             </Typography>
           </Grid2>
-          {/* <textarea
-            name="description"
-            id=""
-            cols="30"
-            rows="10"
-            value={project?.description}
-            onChange={handleChange}
-          ></textarea> */}
           <Grid2 xs={12}>
             <Editor
               initialValue={project?.description}

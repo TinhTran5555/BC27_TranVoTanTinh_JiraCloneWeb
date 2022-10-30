@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import authAPIs from '../../../app/apis/auth/authAPIs';
-import thunk from '../../../app/apis/helper/thunk';
+
 
 const initialState = {
   data: JSON.parse(localStorage.getItem('user')) || null,
@@ -8,9 +8,6 @@ const initialState = {
   error: '',
 };
 const { signIn, signUp } = authAPIs;
-
-// export const loginHandler = thunk.request('auth/signIn', signIn);
-
 export const signInHandler = createAsyncThunk(
   'auth/signIn',
   async (user, { rejectWithValue }) => {

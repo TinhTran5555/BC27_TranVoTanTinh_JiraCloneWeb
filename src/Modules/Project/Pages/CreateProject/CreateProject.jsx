@@ -1,5 +1,5 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import 'draft-js/dist/Draft.css';
+import React, { useReducer, useState } from "react";
+import "draft-js/dist/Draft.css";
 import {
   Chip,
   InputLabel,
@@ -11,44 +11,41 @@ import {
   styled,
   Alert,
   Button,
-} from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Container } from '@mui/system';
-import RichTextEditor from './RichTextEditor';
+} from "@mui/material";
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
+import { Container } from "@mui/system";
+import { useRequest } from "../../../../app/hooks/request/useRequest";
+import projectCategory from "../../../../app/apis/projectCategory/projectCategory";
+import { useForm } from "react-hook-form";
+import { Editor } from "@tinymce/tinymce-react";
+import { useDispatch } from "react-redux";
+import { createProjectThunk } from "../../slice/projectSlice";
 
-import { useRequest } from '../../../../app/hooks/request/useRequest';
-import projectCategory from '../../../../app/apis/projectCategory/projectCategory';
-import { useForm } from 'react-hook-form';
-
-import { useDispatch } from 'react-redux';
-import { createProjectThunk } from '../../slice/projectSlice';
-
-//
 const { getProjectCategory } = projectCategory;
 
 const categoryProjectMap = {
-  app: 'Dự án phần mềm',
-  web: 'Dự án web',
-  mobile: 'Dự án di động',
+  app: "Dự án phần mềm",
+  web: "Dự án web",
+  mobile: "Dự án di động",
 };
 
 const CategorySelection = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'flex-start',
-  gap: '8px',
-  alignItems: 'center',
+  display: "flex",
+  justifyContent: "flex-start",
+  gap: "8px",
+  alignItems: "center",
 }));
 
 const alertCase = {
-  loading: 'ALERT_LOADING',
-  error: 'ALERT_ERROR',
-  success: 'ALERT_SUCCESS',
+  loading: "ALERT_LOADING",
+  error: "ALERT_ERROR",
+  success: "ALERT_SUCCESS",
 };
 
 const initialAlertState = {
   isLoading: false,
-  errorMessage: '',
-  successMessage: '',
+  errorMessage: "",
+  successMessage: "",
 };
 
 const alertReducer = (state, { type, payload }) => {
@@ -62,15 +59,15 @@ const alertReducer = (state, { type, payload }) => {
       return {
         ...state,
         isLoading: false,
-        successMessage: '',
+        successMessage: "",
         errorMessage: payload,
       };
     case alertCase.success:
       return {
         ...state,
         isLoading: false,
-        errorMessage: '',
-        successMessage: 'Create Project Successfully',
+        errorMessage: "",
+        successMessage: "Create Project Successfully",
       };
     default:
       return state;
@@ -93,9 +90,9 @@ const CreateProject = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    mode: 'onBlur',
+    mode: "onBlur",
     defaultValues: {
-      projectName: '',
+      projectName: "",
     },
   });
 
@@ -109,7 +106,7 @@ const CreateProject = () => {
         });
         return;
       }
-      const formattedName = projectName.replace("'", "\\'");
+
       const projectInfo = {
         projectName,
         selectedCategory,
@@ -149,21 +146,21 @@ const CreateProject = () => {
     }
   };
 
-  const watchEditor = (html) => {
-    setDescription(html);
+  const handleEditorChange = (content, editor) => {
+    setDescription(content);
   };
 
   return (
-    <Container sx={{ marginTop: '32px' }} maxWidth='xl'>
+    <Container sx={{ marginTop: "32px" }} maxWidth="xl">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant='h5' fontWeight={700}>
+        <Typography variant="h5" fontWeight={700}>
           Create New Project
         </Typography>
-        <Grid2 sx={{ textAlign: 'left' }} container>
+        <Grid2 sx={{ textAlign: "left" }} container>
           <Grid2 marginTop={2} xs={4}>
             <InputLabel
               sx={{
-                fontSize: '14px',
+                fontSize: "14px",
                 fontWeight: 700,
                 color: colors.grey[900],
               }}
@@ -171,20 +168,20 @@ const CreateProject = () => {
               Project Name
             </InputLabel>
             <TextField
-              size='small'
+              size="small"
               placeholder="Input your project's name"
-              {...register('projectName', {
+              {...register("projectName", {
                 required: {
                   value: true,
-                  message: 'This is required',
+                  message: "This is required",
                 },
                 pattern: {
                   value: /^[^'"!@#$%^&*()?,:;~`+=-]*$/,
-                  message: 'Not contain special character',
+                  message: "Not contain special character",
                 },
               })}
               fullWidth
-              color={errors.projectName ? 'error' : ''}
+              color={errors.projectName ? "error" : ""}
               error={!!errors.projectName}
               helperText={errors.projectName?.message}
             />
@@ -193,24 +190,58 @@ const CreateProject = () => {
         <Grid2 marginTop={2} container>
           <Grid2 marginBottom={1} xs={12}>
             <Typography
-              sx={{ display: 'block' }}
-              align='left'
-              variant='subtitle1'
+              sx={{ display: "block" }}
+              align="left"
+              variant="subtitle1"
               fontWeight={700}
             >
               Write description
             </Typography>
           </Grid2>
           <Grid2 xs={8}>
-            <RichTextEditor onWatch={(state) => watchEditor(state)} />
+            <Editor
+              placeholder="Write your project's description... "
+              init={{
+                height: 300,
+                menubar: false,
+                plugins: [
+                  "advlist",
+                  "autolink",
+                  "lists",
+                  "link",
+                  "image",
+                  "charmap",
+                  "preview",
+                  "anchor",
+                  "searchreplace",
+                  "visualblocks",
+                  "code",
+                  "fullscreen",
+                  "insertdatetime",
+                  "media",
+                  "table",
+                  "code",
+                  "help",
+                  "wordcount",
+                ],
+                toolbar:
+                  "undo redo | blocks | " +
+                  "bold italic forecolor | alignleft aligncenter " +
+                  "alignright alignjustify | bullist numlist outdent indent | " +
+                  "removeformat | help",
+                content_style:
+                  "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+              }}
+              onEditorChange={handleEditorChange}
+            />
           </Grid2>
         </Grid2>
         <Grid2 marginTop={2} container>
           <Grid2 xs={12}>
             <Typography
-              sx={{ display: 'block', marginBottom: '16px' }}
-              align='left'
-              variant='subtitle1'
+              sx={{ display: "block", marginBottom: "16px" }}
+              align="left"
+              variant="subtitle1"
               fontWeight={700}
             >
               Project Category
@@ -222,28 +253,28 @@ const CreateProject = () => {
                     key={item.id}
                     sx={(theme) => ({
                       color:
-                        item.projectCategoryName === categoryProjectMap['app']
+                        item.projectCategoryName === categoryProjectMap["app"]
                           ? theme.palette.primary.light
                           : item.projectCategoryName ===
-                            categoryProjectMap['web']
+                            categoryProjectMap["web"]
                           ? colors.green[500]
                           : colors.amber[500],
                       backgroundColor:
-                        item.projectCategoryName === categoryProjectMap['app']
+                        item.projectCategoryName === categoryProjectMap["app"]
                           ? alpha(theme.palette.primary.light, 0.2)
                           : item.projectCategoryName ===
-                            categoryProjectMap['web']
+                            categoryProjectMap["web"]
                           ? colors.green[50]
                           : colors.amber[50],
-                      '&:hover': {
+                      "&:hover": {
                         backgroundColor:
                           selectedCategory === item.id
                             ? theme.palette.secondary.light
                             : item.projectCategoryName ===
-                              categoryProjectMap['app']
+                              categoryProjectMap["app"]
                             ? alpha(theme.palette.primary.main, 0.2)
                             : item.projectCategoryName ===
-                              categoryProjectMap['web']
+                              categoryProjectMap["web"]
                             ? colors.green[100]
                             : colors.amber[100],
                       },
@@ -261,10 +292,10 @@ const CreateProject = () => {
         <Grid2 marginTop={4} container>
           <Box>
             <Button
-              type='submit'
-              sx={{ borderRadius: '8px' }}
-              variant='contained'
-              color='primary'
+              type="submit"
+              sx={{ borderRadius: "8px" }}
+              variant="contained"
+              color="primary"
               disabled={alertState.isLoading}
             >
               Add Project
@@ -276,9 +307,9 @@ const CreateProject = () => {
         <Grid2>
           <Box marginTop={4}>
             {alertState.errorMessage ? (
-              <Alert severity='error'>{alertState.errorMessage}</Alert>
+              <Alert severity="error">{alertState.errorMessage}</Alert>
             ) : alertState.successMessage ? (
-              <Alert severity='success'>{alertState.successMessage}</Alert>
+              <Alert severity="success">{alertState.successMessage}</Alert>
             ) : null}
           </Box>
         </Grid2>

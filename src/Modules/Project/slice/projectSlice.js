@@ -1,13 +1,13 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import thunk from '../../../app/apis/helper/thunk';
-import projectAPIs from '../../../app/apis/projectAPIs/projectAPIs';
+import { createSlice, } from "@reduxjs/toolkit";
+import thunk from "../../../app/apis/helper/thunk";
+import projectAPIs from "../../../app/apis/projectAPIs/projectAPIs";
 
 const initialState = {
   projects: [],
   projectDetail: [],
-  taskDetail:[],
+  taskDetail: [],
   isLoading: false,
-  error: '',
+  error: "",
 };
 
 const {
@@ -19,78 +19,73 @@ const {
   assignUser,
   removeUserFromProject,
   getSearchProjects,
-  getSearchTask
+  getAllTask,
+  removeUserFromTask,
+  assignUserTask,
+  updateStatusTask,
+  updateTask,
+  removeTask,
+  createTask,
 } = projectAPIs;
 
 export const getAllProjectsThunk = thunk.request(
-  'project/getAllProjects',
+  "project/getAllProjects",
   getAllProjects
 );
 
-export const getSearchTaskThunk = createAsyncThunk(
-  "task/getSearchTask",
-  async (taskId, { rejectWithValue }) => {
-    try {
-      const data = await getSearchTask(taskId);
+export const getSearchTaskThunk = thunk.request("task/getAllTask", getAllTask);
+export const updateTaskThunk = thunk.request("task/updateTask", updateTask);
 
-      return data;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
-  }
-);
-export const getSearchProjectsThunk = createAsyncThunk(
+export const getSearchProjectsThunk = thunk.request(
   "project/getSearchProjects",
-  async (keyword, { rejectWithValue }) => {
-    try {
-      const data = await getSearchProjects(keyword);
-
-      return data;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
-  }
+  getSearchProjects
 );
 export const getProjectDetailThunk = thunk.request(
-  'project/getProjectDetail',
+  "project/getProjectDetail",
   getProjectDetail
 );
 
 export const createProjectThunk = thunk.request(
-  'project/createProject',
+  "project/createProject",
   createProject
 );
-export const updateProjectThunk = createAsyncThunk(
+
+export const updateProjectThunk = thunk.request(
   "project/getUpdateProjects",
-  async (projectInfo, { rejectWithValue }) => {
-    console.log("Thunk", projectInfo);
-    try {
-      const data = await updateProject(projectInfo);
-      return data;
-    } catch (error) {  
-      return rejectWithValue(error);
-    }
-  }
+  updateProject
 );
 
 export const deleteProjectThunk = thunk.request(
-  'project/deleteProject',
+  "project/deleteProject",
   deleteProject
 );
 
 export const removeUserFromProjectThunk = thunk.request(
-  'project/removeUserFromProject',
+  "project/removeUserFromProject",
   removeUserFromProject
 );
 
 export const assignUserProjectThunk = thunk.request(
-  'project/assignUserProject',
+  "project/assignUserProject",
   assignUser
 );
-
+export const removeUserFromTaskThunk = thunk.request(
+  "task/removeUserFromTask",
+  removeUserFromTask
+);
+export const assignUserTaskThunk = thunk.request(
+  "task/assignUserTask",
+  assignUserTask
+);
+export const updateStatusTaskThunk = thunk.request(
+  "task/updateStatusTask",
+  updateStatusTask
+);
+export const removeTaskThunk = thunk.request("task/removeTask", removeTask);
+export const createTaskThunk = thunk.request("task/createTask", createTask);
 
 const projectSlice = createSlice({
-  name: 'project',
+  name: "project",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -106,7 +101,7 @@ const projectSlice = createSlice({
         state.isLoading = false;
         state.error = payload;
       });
-      builder
+    builder
       .addCase(getSearchProjectsThunk.pending, (state) => {
         state.isLoading = true;
       })
@@ -118,32 +113,25 @@ const projectSlice = createSlice({
         state.isLoading = false;
         state.error = payload;
       });
-      builder
-      .addCase(getProjectDetailThunk.pending, (state) => {
-  
-      })
+    builder
+      .addCase(getProjectDetailThunk.pending, (state) => {})
       .addCase(getProjectDetailThunk.fulfilled, (state, { payload }) => {
-        
         state.projectDetail = payload;
       })
       .addCase(getProjectDetailThunk.rejected, (state, { payload }) => {
-        
         state.error = payload;
-     
       });
-      builder
+    builder
       .addCase(getSearchTaskThunk.pending, (state) => {
         state.isLoading = true;
-       
       })
       .addCase(getSearchTaskThunk.fulfilled, (state, { payload }) => {
-        state.isLoading = false; 
+        state.isLoading = false;
         state.taskDetail = payload;
       })
       .addCase(getSearchTaskThunk.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.error = payload;
-     
       });
   },
 });
