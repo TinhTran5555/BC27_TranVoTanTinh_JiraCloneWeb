@@ -1,4 +1,4 @@
-import { createSlice, } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import thunk from "../../../app/apis/helper/thunk";
 import projectAPIs from "../../../app/apis/projectAPIs/projectAPIs";
 
@@ -7,6 +7,7 @@ const initialState = {
   projectDetail: [],
   taskDetail: [],
   userProject: [],
+  comment: [],
   isLoading: false,
   error: "",
 };
@@ -27,7 +28,11 @@ const {
   updateTask,
   removeTask,
   createTask,
-  getUserProjectId
+  getUserProjectId,
+  getComment,
+  updateComment,
+  insertComment,
+  deleteComment,
 } = projectAPIs;
 
 export const getAllProjectsThunk = thunk.request(
@@ -87,9 +92,23 @@ export const getUserByProjectIdThunk = thunk.request(
   "task/getUserProjectId",
   getUserProjectId
 );
+
 export const removeTaskThunk = thunk.request("task/removeTask", removeTask);
 export const createTaskThunk = thunk.request("task/createTask", createTask);
 
+export const getCommentThunk = thunk.request("task/getComment", getComment);
+export const updateCommentThunk = thunk.request(
+  "task/updateComment",
+  updateComment
+);
+export const insertCommentThunk = thunk.request(
+  "task/insertComment",
+  insertComment
+);
+export const deleteCommentThunk = thunk.request(
+  "task/deleteComment",
+  deleteComment
+);
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -139,7 +158,7 @@ const projectSlice = createSlice({
         state.isLoading = false;
         state.error = payload;
       });
-      builder
+    builder
       .addCase(getUserByProjectIdThunk.pending, (state) => {
         state.isLoading = true;
       })
@@ -148,6 +167,18 @@ const projectSlice = createSlice({
         state.userProject = payload;
       })
       .addCase(getUserByProjectIdThunk.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        state.error = payload;
+      });
+    builder
+      .addCase(getCommentThunk.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCommentThunk.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.comment = payload;
+      })
+      .addCase(getCommentThunk.rejected, (state, { payload }) => {
         state.isLoading = false;
         state.error = payload;
       });

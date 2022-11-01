@@ -54,7 +54,6 @@ const projectAPIs = {
     });
   },
   updateProject: (projectInfo) => {
-    console.log("Api", projectInfo);
     return axiosClient.put("Project/updateProject", projectInfo, {
       params: {
         projectId: projectInfo.id,
@@ -70,7 +69,6 @@ const projectAPIs = {
     });
   },
   removeUserFromProject: (userProject) => {
-    console.log("");
     return axiosClient.post("Project/removeUserFromProject", userProject);
   },
 
@@ -84,12 +82,38 @@ const projectAPIs = {
     return axiosClient.post("Project/removeUserFromTask", userTask);
   },
   updateStatusTask: (taskCopy) => {
-    console.log(taskCopy);
     return axiosClient.put("Project/updateStatus", taskCopy);
   },
   updateTask: (task) => {
-    console.log(task);
     return axiosClient.post("Project/updateTask", task);
+  },
+  getComment: (taskId) => {
+    const params = new URLSearchParams();
+    params.append("taskId", taskId);
+    return axiosClient.get("Comment/getAll", {
+      params,
+    });
+  },
+  updateComment: (commentInfo) => {
+    return axiosClient.put(
+      "Comment/updateComment",
+      commentInfo.contentComment,
+      {
+        params: {
+          id: commentInfo.id,
+        },
+      }
+    );
+  },
+  insertComment: (commentInfo) => {
+    return axiosClient.post("Comment/insertComment", commentInfo);
+  },
+  deleteComment: (idComment) => {
+    return axiosClient.delete("Comment/deleteComment", {
+      params: {
+        idComment: idComment,
+      },
+    });
   },
 };
 

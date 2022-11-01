@@ -8,21 +8,36 @@ import {
   Chip,
   InputLabel,
   alpha,
+  Avatar,
+  TextField,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { projectSelector } from "../../../../app/store";
+import { projectSelector, authSelector } from "../../../../app/store";
 import { Editor } from "@tinymce/tinymce-react";
-import { getSearchTaskThunk, updateTaskThunk ,removeTaskThunk } from "../../slice/projectSlice";
+import {
+  getSearchTaskThunk,
+  updateTaskThunk,
+  removeTaskThunk,
+  getCommentThunk,
+  updateCommentThunk,
+  insertCommentThunk
+} from "../../slice/projectSlice";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
+import  useViewport from "../../../../app/hooks/useViewport/useViewport";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
 import statusList from "../../../../app/apis/statusList/statusList";
 import priorityList from "../../../../app/apis/priorityList/priorityList";
 import MembersTask from "../../Components/MembersTask/MembersTask";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
+
+import Comment from "../../Components/Comment/";
+
 const { getTypeTaskList } = typeTaskList;
 const { getStatusList } = statusList;
 const { getPriorityList } = priorityList;
@@ -51,21 +66,50 @@ const categoryPriorityMap = {
 };
 
 const Task = () => {
-  
+ 
   const { taskId } = useParams();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { taskDetail } = useSelector(projectSelector);
+  const { data: auth } = useSelector(authSelector);
+
+  const { taskDetail, comment } = useSelector(projectSelector);
 
   const {
     handleSubmit,
 
-    formState: {  },
+    formState: {},
   } = useForm({
     mode: "onBlur",
     defaultValues: {},
   });
+
+  const viewPort = useViewport();
+  const is2k = viewPort.width <= 1440;
+  const islaptopK = viewPort.width <= 1280;
+  const isLapTop = viewPort.width <= 1024;
+const isTablet = viewPort.width <= 992;
+  let rightComment = "220px"
+let topComment = "420px"
+if (is2k) {
+  topComment = "480px"
+  rightComment = "160px";
+ }
+ if (islaptopK) {
+  topComment = "480px"
+  rightComment = "150px";
+ }
+
+if (isLapTop) {
+  topComment = "480px"
+  rightComment = "50px";
+ }
+if (isTablet) {
+  topComment = "480px"
+  rightComment = "30px";
+ }
+
+
   const { data: typeTaskList } = useRequest(getTypeTaskList);
   const { data: statusList } = useRequest(getStatusList);
   const { data: priorityList } = useRequest(getPriorityList);
@@ -77,7 +121,6 @@ const Task = () => {
     typeId: "",
     priorityId: "",
   });
-
 
   let descriptionEdit = null;
   const handleEditorChange = (content, editor) => {
@@ -111,37 +154,41 @@ const Task = () => {
     }
   };
 
+
   useEffect(() => {
     dispatch(getSearchTaskThunk(taskId));
+    dispatch(getCommentThunk(taskId));
   }, [taskId]);
+
   useEffect(() => {
     if (taskDetail) {
       setTask(taskDetail);
     }
   }, [taskDetail]);
-
-
-
+  useEffect(() => {
+    dispatch(getCommentThunk(taskId));
+  }, [comment]);
+ 
   const onSubmit = async () => {
     try {
-      let taskInfo = "" ;
+      let taskInfo = "";
       if (descriptionEdit !== null) {
-         taskInfo = { ...task, description: descriptionEdit };
+        taskInfo = { ...task, description: descriptionEdit };
       } else {
-      taskInfo = { ...task };
-}
+        taskInfo = { ...task };
+      }
       const data = await dispatch(updateTaskThunk(taskInfo)).unwrap();
-      
+
       dispatch(getSearchTaskThunk(taskId));
       return data;
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   return (
     <Container sx={{ marginTop: "32px" }} maxWidth="xl">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form style={{position:"relative"}} onSubmit={handleSubmit(onSubmit)}>
         <Grid container>
           <Grid item xs={7}>
             <Typography variant="h5" fontWeight={700}>
@@ -207,17 +254,16 @@ const Task = () => {
             </Grid>
             <Grid sx={{ textAlign: "left" }} container>
               <Grid marginTop={2} xs={4} item>
-              <Typography
+                <Typography
                   sx={{ display: "block" }}
                   align="left"
                   variant="subtitle1"
                   fontWeight={700}
                 >
-                  Task Name 
+                  Task Name
                 </Typography>
                 <Typography>{task?.taskName}</Typography>
               </Grid>
-              
             </Grid>
             <Grid marginTop={2} container>
               <Grid marginBottom={1}>
@@ -414,7 +460,6 @@ const Task = () => {
                 </Grid>
               </Grid>
             </Grid>
-            
           </Grid>
           <Grid item xs={12}>
             <Grid marginTop={4} container>
@@ -428,26 +473,26 @@ const Task = () => {
                   Update Task
                 </Button>
               </Box>
-              <Box sx={{marginLeft: "20px"}}>
+              <Box sx={{ marginLeft: "20px" }}>
                 <Button
-                 sx={{ borderRadius: "8px" }}
-                 variant="contained"
-                 color="error"
-                  onClick={()=>{ try {
-                    dispatch(removeTaskThunk(taskDetail?.taskId)) ;
-                    navigate(`/project`);
-                  } catch (error) {
-                    console.log(error);
-                  } 
-                  } }
-                 
+                  sx={{ borderRadius: "8px" }}
+                  variant="contained"
+                  color="error"
+                  onClick={() => {
+                    try {
+                      dispatch(removeTaskThunk(taskDetail?.taskId));
+                      navigate(`/project`);
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
                 >
-                 Delete Task
+                  Delete Task
                 </Button>
               </Box>
-              <Box sx={{marginLeft: "20px"}}>
+              <Box sx={{ marginLeft: "20px" }}>
                 <Button
-                  onClick={()=> {
+                  onClick={() => {
                     navigate(`/project`);
                   }}
                   sx={{ borderRadius: "8px" }}
@@ -459,9 +504,68 @@ const Task = () => {
               </Box>
             </Grid>
           </Grid>
-          
         </Grid>
       </form>
+      <Box sx={{position: "absolute" , top : topComment , right: rightComment }}>
+      <Grid marginTop={2} container >
+        <Grid item xs={12}>
+          <Typography
+            sx={{ display: "block", marginBottom: "16px" }}
+            align="left"
+            variant="subtitle1"
+            fontWeight={700}
+          >
+            Comment
+          </Typography>
+          <Grid container marginTop={2} marginBottom={2} sx={{ textAlign: "left", alignItems: "center" }}>
+            <Grid item xs={2}>
+              <Avatar src={auth?.avatar}></Avatar>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography> {auth?.name}</Typography>
+            </Grid>
+            <Grid container xs={12} item >
+              <Grid item xs={12}>
+                <TextField 
+                sx={{margin: "5px 0 0 56px"}} 
+                  hiddenLabel
+                  placeholder="Please enter comment"
+                  size="small"
+                  
+                  name="comment"
+                
+                  onKeyDown={(e) => { 
+                    e.stopPropagation();
+                     
+                    if (e.key !== "Enter") {
+                      return
+                    }
+                     const numberTaskId = Number(taskId)
+                    
+                    const commentInfo = { taskId: numberTaskId ,contentComment: e.target.value }
+                    
+                    dispatch(insertCommentThunk(commentInfo))
+                    e.target.value = ""
+                  }}
+                ></TextField>
+              </Grid>
+             
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            {comment?.map((item, index) => {
+              return (
+                 
+                <Comment
+                  key={item?.id}
+                  comment={comment}
+                  index={index}
+                ></Comment>
+              );
+            })}
+          </Grid>
+        </Grid>
+      </Grid></Box>
     </Container>
   );
 };

@@ -7,7 +7,7 @@ const useViewport = () => {
     const handleWindowResize = () => setWidth(window.innerWidth);
     window.addEventListener("resize", handleWindowResize);
     return () => window.removeEventListener("resize", handleWindowResize);
-  }, []);
+  }, [window.innerWidth]);
 
   return { width };
 };

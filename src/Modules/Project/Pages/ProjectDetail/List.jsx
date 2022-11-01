@@ -182,7 +182,7 @@ const List = ({ listTask }) => {
                      
                     >
                       {(provided) => { 
-                        console.log(task);
+                       
                         return  <div  ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}>

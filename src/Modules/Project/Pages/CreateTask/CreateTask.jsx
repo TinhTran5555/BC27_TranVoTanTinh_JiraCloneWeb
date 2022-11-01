@@ -210,7 +210,7 @@ const CreateTask = () => {
         priorityId: task.priorityId,
         taskName: task.taskName,
       };
-      console.log(taskInfo);
+        
 
       const data = await dispatch(createTaskThunk(taskInfo)).unwrap();
       dispatchAlert({
