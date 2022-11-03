@@ -15,6 +15,7 @@ import {
   faExpand,
   faPlus,
   faSearch,
+  faRightFromBracket
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,8 @@ import {
   getSearchProjectsThunk,
   getAllProjectsThunk,
 } from "../../../../../Modules/Project/slice/projectSlice";
+import { logout } from "../../../../../Modules/Auth/slice/authSlice";
+import { clearDataProject } from "../../../../../Modules/Project/slice/projectSlice";
 const Navbar = styled(Box)(({ theme }) => ({
   position: "fixed",
   top: 0,
@@ -71,6 +74,11 @@ const NavItem = styled(Box)(({ theme }) => ({
 }));
 
 const Navigation = () => {
+  const goToLogout= () => {
+    dispatch(logout())
+    dispatch(clearDataProject())
+    navigate("/");
+  };
   const [isProjectManager, setIsProjectManager] = useState(false);
 
   const navigate = useNavigate();
@@ -207,7 +215,25 @@ const Navigation = () => {
             </Fade>
           </Collapse>
         </NavItem>
-
+        <NavItem
+          sx={{ ...navItemStyle() }}
+          onClick={()=> goToLogout()} 
+        >
+          <IconButton sx={{ ...iconButtonStyle() }}>
+            <FontAwesomeIcon icon={faRightFromBracket} />
+          </IconButton>
+          <Collapse orientation="horizontal" in={isProjectManager}>
+            <Fade in={isProjectManager}>
+              <Typography
+                sx={{ whiteSpace: "nowrap" }}
+                variant="subtitle1"
+                fontWeight={700}
+              >
+                Log out
+              </Typography>
+            </Fade>
+          </Collapse>
+        </NavItem>
         <NavItem
           sx={{ ...navItemStyle() }}
           onClick={() => setIsProjectManager((prev) => !prev)}

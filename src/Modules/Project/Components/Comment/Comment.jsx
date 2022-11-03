@@ -1,27 +1,14 @@
 import {
   Grid,
-  styled,
-  Box,
   Typography,
   Button,
-  colors,
-  Chip,
-  InputLabel,
-  alpha,
   Avatar,
   TextField,
 } from "@mui/material";
-import { Container } from "@mui/system";
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { projectSelector } from "../../../../app/store";
-import { Editor } from "@tinymce/tinymce-react";
+import { useDispatch } from "react-redux";
 import {
-  getSearchTaskThunk,
-  updateTaskThunk,
-  removeTaskThunk,
-  getCommentThunk,
+
   updateCommentThunk,
   deleteCommentThunk,
 } from "../../slice/projectSlice";
@@ -44,7 +31,7 @@ const Comment = ({ comment, index }) => {
   }, [comment]);
 
   return (
-    <Grid container sx={{ textAlign: "left", alignItems: "center", marginBottom: "10px" ,width: "370px" }}>
+    <Grid container sx={{ textAlign: "left", alignItems: "center", marginBottom: "10px" }}>
       <Grid item xs={2}>
         <Avatar src={comment[index]?.user.avatar}></Avatar>{" "}
       </Grid>
@@ -82,7 +69,7 @@ const Comment = ({ comment, index }) => {
           <Typography>{comment[indexComment]?.contentComment}</Typography>
         ) : (
           <Grid container xs={12} item>
-            <Grid item xs={12}>
+            <Grid item xs={10.5}>
               <TextField
                 hiddenLabel
                 defaultValue={comment[indexComment]?.contentComment}

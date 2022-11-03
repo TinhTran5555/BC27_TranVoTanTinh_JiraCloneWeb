@@ -112,7 +112,16 @@ export const deleteCommentThunk = thunk.request(
 const projectSlice = createSlice({
   name: "project",
   initialState,
-  reducers: {},
+  reducers: {
+    clearDataProject: (state) => {
+     
+      state.projects = [];
+      state.projectDetail = [];
+      state.taskDetail = [];
+      state.userProject = [];
+      state.comment = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllProjectsThunk.pending, (state) => {
@@ -184,5 +193,6 @@ const projectSlice = createSlice({
       });
   },
 });
+export const { clearDataProject } = projectSlice.actions;
 
 export default projectSlice.reducer;

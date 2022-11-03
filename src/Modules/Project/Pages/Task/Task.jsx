@@ -22,20 +22,15 @@ import {
   updateTaskThunk,
   removeTaskThunk,
   getCommentThunk,
-  updateCommentThunk,
-  insertCommentThunk
+  insertCommentThunk,
 } from "../../slice/projectSlice";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
-import  useViewport from "../../../../app/hooks/useViewport/useViewport";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
 import statusList from "../../../../app/apis/statusList/statusList";
 import priorityList from "../../../../app/apis/priorityList/priorityList";
 import MembersTask from "../../Components/MembersTask/MembersTask";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
-
 import Comment from "../../Components/Comment/";
 
 const { getTypeTaskList } = typeTaskList;
@@ -66,7 +61,6 @@ const categoryPriorityMap = {
 };
 
 const Task = () => {
- 
   const { taskId } = useParams();
 
   const dispatch = useDispatch();
@@ -84,30 +78,6 @@ const Task = () => {
     defaultValues: {},
   });
 
-  const viewPort = useViewport();
-  const is2k = viewPort.width <= 1440;
-  const islaptopK = viewPort.width <= 1280;
-  const isLapTop = viewPort.width <= 1024;
-const isTablet = viewPort.width <= 992;
-  let rightComment = "220px"
-let topComment = "420px"
-if (is2k) {
-  topComment = "480px"
-  rightComment = "160px";
- }
- if (islaptopK) {
-  topComment = "480px"
-  rightComment = "150px";
- }
-
-if (isLapTop) {
-  topComment = "480px"
-  rightComment = "50px";
- }
-if (isTablet) {
-  topComment = "480px"
-  rightComment = "30px";
- }
 
 
   const { data: typeTaskList } = useRequest(getTypeTaskList);
@@ -154,7 +124,6 @@ if (isTablet) {
     }
   };
 
-
   useEffect(() => {
     dispatch(getSearchTaskThunk(taskId));
     dispatch(getCommentThunk(taskId));
@@ -168,7 +137,7 @@ if (isTablet) {
   useEffect(() => {
     dispatch(getCommentThunk(taskId));
   }, [comment]);
- 
+
   const onSubmit = async () => {
     try {
       let taskInfo = "";
@@ -188,7 +157,7 @@ if (isTablet) {
 
   return (
     <Container sx={{ marginTop: "32px" }} maxWidth="xl">
-      <form style={{position:"relative"}} onSubmit={handleSubmit(onSubmit)}>
+      <form style={{ position: "relative" }} onSubmit={handleSubmit(onSubmit)}>
         <Grid container>
           <Grid item xs={7}>
             <Typography variant="h5" fontWeight={700}>
@@ -460,10 +429,8 @@ if (isTablet) {
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Grid marginTop={4} container>
-              <Box>
+            <Grid marginTop={6} container sx={{ gap: "10px" }}>
+              <Grid>
                 <Button
                   type="submit"
                   sx={{ borderRadius: "8px" }}
@@ -472,8 +439,8 @@ if (isTablet) {
                 >
                   Update Task
                 </Button>
-              </Box>
-              <Box sx={{ marginLeft: "20px" }}>
+              </Grid>
+              <Grid>
                 <Button
                   sx={{ borderRadius: "8px" }}
                   variant="contained"
@@ -489,8 +456,8 @@ if (isTablet) {
                 >
                   Delete Task
                 </Button>
-              </Box>
-              <Box sx={{ marginLeft: "20px" }}>
+              </Grid>
+              <Grid>
                 <Button
                   onClick={() => {
                     navigate(`/project`);
@@ -501,14 +468,15 @@ if (isTablet) {
                 >
                   Cancle Task
                 </Button>
-              </Box>
+              </Grid>
             </Grid>
           </Grid>
+          <Grid item xs={12}></Grid>
         </Grid>
       </form>
-      <Box sx={{position: "absolute" , top : topComment , right: rightComment }}>
-      <Grid marginTop={2} container >
-        <Grid item xs={12}>
+
+      <Grid marginTop={1} container>
+        <Grid item xs={7}>
           <Typography
             sx={{ display: "block", marginBottom: "16px" }}
             align="left"
@@ -517,45 +485,50 @@ if (isTablet) {
           >
             Comment
           </Typography>
-          <Grid container marginTop={2} marginBottom={2} sx={{ textAlign: "left", alignItems: "center" }}>
+          <Grid
+            container
+            marginTop={2}
+            marginBottom={2}
+            sx={{ textAlign: "left", alignItems: "center" }}
+          >
             <Grid item xs={2}>
               <Avatar src={auth?.avatar}></Avatar>
             </Grid>
             <Grid item xs={6}>
               <Typography> {auth?.name}</Typography>
             </Grid>
-            <Grid container xs={12} item >
-              <Grid item xs={12}>
-                <TextField 
-                sx={{margin: "5px 0 0 56px"}} 
+            <Grid container xs={12} item>
+              <Grid item xs={9.5}>
+                <TextField
+                  sx={{ margin: "5px 0 0 56px" }}
                   hiddenLabel
+                  fullWidth
                   placeholder="Please enter comment"
                   size="small"
-                  
                   name="comment"
-                
-                  onKeyDown={(e) => { 
+                  onKeyDown={(e) => {
                     e.stopPropagation();
-                     
+
                     if (e.key !== "Enter") {
-                      return
+                      return;
                     }
-                     const numberTaskId = Number(taskId)
-                    
-                    const commentInfo = { taskId: numberTaskId ,contentComment: e.target.value }
-                    
-                    dispatch(insertCommentThunk(commentInfo))
-                    e.target.value = ""
+                    const numberTaskId = Number(taskId);
+
+                    const commentInfo = {
+                      taskId: numberTaskId,
+                      contentComment: e.target.value,
+                    };
+
+                    dispatch(insertCommentThunk(commentInfo));
+                    e.target.value = "";
                   }}
                 ></TextField>
               </Grid>
-             
             </Grid>
           </Grid>
           <Grid item xs={12}>
             {comment?.map((item, index) => {
               return (
-                 
                 <Comment
                   key={item?.id}
                   comment={comment}
@@ -565,7 +538,7 @@ if (isTablet) {
             })}
           </Grid>
         </Grid>
-      </Grid></Box>
+      </Grid>
     </Container>
   );
 };
