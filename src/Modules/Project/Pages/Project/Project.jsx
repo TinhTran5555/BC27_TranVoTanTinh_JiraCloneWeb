@@ -122,11 +122,20 @@ const Project = () => {
           />
         </TableCellBody>
         <TableCellBody
-          sx={{
+          sx={{ 
             maxWidth: 160,
+            
           }}
         >
-          <Typography
+          <Typography 
+          sx={{cursor:"pointer" ,
+          transition: 'all ease 0.05s',
+          "&: hover": {
+            transform: 'scale(110%)',
+            backgroundColor:              
+             alpha(colors.grey[400], 0.2),
+             borderRadius: "5px", 
+          },}}
             variant="subtitle1"
             fontWeight={700}
             onClick={() => {
