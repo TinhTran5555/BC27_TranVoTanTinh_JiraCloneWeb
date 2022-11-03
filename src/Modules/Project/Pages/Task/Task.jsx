@@ -137,7 +137,7 @@ const Task = () => {
   };
   const sumTimeTracking = task?.timeTrackingSpent + task?.timeTrackingRemaining;
 
-  console.log(task);
+ 
   let descriptionEdit = null;
   const handleEditorChange = (content, editor) => {
     descriptionEdit = content;

@@ -19,16 +19,17 @@ import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
 const Comment = ({ comment, index, taskId }) => {
   const dispatch = useDispatch();
 
+
   const [isEditCommnent, setIsEditCommnent] = useState(true);
   const [Comment, setContentComment] = useState("");
 
   const [indexComment, setIndexComment] = useState();
-
+ 
   useEffect(() => {
-    setContentComment(comment[indexComment]?.contentComment);
+    setContentComment(comment[indexComment]?.commentContent);
   }, [indexComment]);
   useEffect(() => {
-    setContentComment(comment[indexComment]?.contentComment);
+    setContentComment(comment[indexComment]?.commentContent);
   }, [comment]);
 
   return (
@@ -69,13 +70,13 @@ const Comment = ({ comment, index, taskId }) => {
       </Grid>
       <Grid item xs={12} marginTop={2} marginLeft={7}>
         {isEditCommnent ? (
-          <Typography>{comment[indexComment]?.contentComment}</Typography>
+          <Typography>{comment[index]?.commentContent}</Typography>
         ) : (
           <Grid container xs={12} item>
             <Grid item xs={10.5}>
               <TextField
                 hiddenLabel
-                defaultValue={comment[indexComment]?.contentComment}
+                defaultValue={comment[indexComment]?.commentContent}
                 size="small"
                 fullWidth
                 name="comment"
@@ -91,7 +92,7 @@ const Comment = ({ comment, index, taskId }) => {
                   e.stopPropagation();
                   const commentInfo = {
                     contentComment: Comment,
-                    id: comment[indexComment]?.id,
+                    id: comment[index]?.id,
                   };
 
                   dispatch(updateCommentThunk(commentInfo));
