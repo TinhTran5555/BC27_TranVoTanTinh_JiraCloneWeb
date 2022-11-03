@@ -11,18 +11,19 @@ import {
 
   updateCommentThunk,
   deleteCommentThunk,
+  getCommentThunk
 } from "../../slice/projectSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
 
-const Comment = ({ comment, index }) => {
+const Comment = ({ comment, index, taskId }) => {
   const dispatch = useDispatch();
 
   const [isEditCommnent, setIsEditCommnent] = useState(true);
   const [Comment, setContentComment] = useState("");
 
   const [indexComment, setIndexComment] = useState();
-
+console.log("comment",comment);
   useEffect(() => {
     setContentComment(comment[indexComment]?.contentComment);
   }, [indexComment]);
@@ -33,11 +34,11 @@ const Comment = ({ comment, index }) => {
   return (
     <Grid container sx={{ textAlign: "left", alignItems: "center", marginBottom: "10px" }}>
       <Grid item xs={2}>
-        <Avatar src={comment[index]?.user.avatar}></Avatar>{" "}
+        <Avatar src={comment[index]?.avatar}></Avatar>{" "}
       </Grid>
       <Grid item xs={6}>
         {" "}
-        <Typography>{comment[index]?.user.name}</Typography>
+        <Typography>{comment[index]?.name}</Typography>
       </Grid>
       <Grid container item xs={4}>
         <Grid item xs={6}>
@@ -57,6 +58,8 @@ const Comment = ({ comment, index }) => {
               e.stopPropagation();
 
               dispatch(deleteCommentThunk(comment[index]?.id));
+              dispatch(getCommentThunk(taskId));
+
             }}
             color="error"
           >
@@ -92,6 +95,7 @@ const Comment = ({ comment, index }) => {
                   };
 
                   dispatch(updateCommentThunk(commentInfo));
+                  dispatch(getCommentThunk(taskId));
                 }}
                 variant="contained"
                 color="success"

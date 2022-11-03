@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation,useParams } from "react-router-dom";
 import { Breadcrumbs, colors, Typography, Avatar, Button } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import { Container, Box } from "@mui/system";
@@ -12,6 +12,10 @@ import {clearDataProject} from "../../../../../Modules/Project/slice/projectSlic
 import {logout} from "../../../../../Modules/Auth/slice/authSlice.js"
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useRequest } from '../../../../../app/hooks/request/useRequest';
+import projectAPIs from '../../../../../app/apis/projectAPIs/projectAPIs';
+
+
 const ContentWrapper = styled(Box)(({ theme }) => ({
   position: "relative",
   marginLeft: "50px",
@@ -41,10 +45,29 @@ const iconButtonStyle = () => {
     },
   };
 };
+const { getProjectDetail } = projectAPIs;
+
 const Content = () => {
   const { data: userData } = useSelector(authSelector);
+  const { projectId = null } = useParams();
+  const { data: projectDetail } = useRequest(
+    () => getProjectDetail(+projectId),
+    {
+      isManual: false,
+      deps: [+projectId],
+    }
+  );
+
   const { pathname } = useLocation();
-  const breadcrumbsData = pathname.slice(1).split("/");
+  let breadcrumbsData = projectId
+    ? `/project/ ${projectDetail ? projectDetail.projectName : ''}`
+    : pathname;
+
+  const transformBreadcrumbsData = breadcrumbsData
+  .slice(1)
+  .split('/')
+  .map((item) => item.replace(/%20/g, ' '));
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const goToLogout= () => {
@@ -56,10 +79,10 @@ const Content = () => {
     <ContentWrapper>
       <div id="draggable"></div>
       <Container maxWidth="xl">
-        <Grid container spacing={4}>
+        <Grid container spacing={4} sx={{alignItems: "center"}}>
           <Grid item xs={8}>
             <Breadcrumbs aria-label="breadcrumb">
-              {breadcrumbsData.map((item) => (
+              {transformBreadcrumbsData.map((item) => (
                 <Typography
                   sx={{
                     textTransform: "capitalize",

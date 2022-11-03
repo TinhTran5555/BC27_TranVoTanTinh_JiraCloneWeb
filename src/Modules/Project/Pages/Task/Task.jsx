@@ -68,7 +68,7 @@ const Task = () => {
   const { data: auth } = useSelector(authSelector);
 
   const { taskDetail, comment } = useSelector(projectSelector);
-
+console.log(taskDetail);
   const {
     handleSubmit,
 
@@ -135,7 +135,7 @@ const Task = () => {
     }
   }, [taskDetail]);
   useEffect(() => {
-    dispatch(getCommentThunk(taskId));
+    dispatch(getSearchTaskThunk(taskId));
   }, [comment]);
 
   const onSubmit = async () => {
@@ -520,6 +520,7 @@ const Task = () => {
                     };
 
                     dispatch(insertCommentThunk(commentInfo));
+                    dispatch(getCommentThunk(taskId));
                     e.target.value = "";
                   }}
                 ></TextField>
@@ -527,15 +528,18 @@ const Task = () => {
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {comment?.map((item, index) => {
+
+            {taskDetail?.lstComment?.map((item, index) => {
               return (
                 <Comment
                   key={item?.id}
-                  comment={comment}
+                  comment={taskDetail?.lstComment}
                   index={index}
+                  taskId={taskId}
                 ></Comment>
               );
-            })}
+            })
+            }
           </Grid>
         </Grid>
       </Grid>
