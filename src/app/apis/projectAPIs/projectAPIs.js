@@ -94,13 +94,28 @@ const projectAPIs = {
       params,
     });
   },
-  updateComment: (commentInfo) => {
+  // updateComment: (commentInfo) => {
+  //   return axiosClient.put(
+  //     "Comment/updateComment",
+  //     commentInfo.contentComment,
+  //     {
+  //       params: {
+  //         id: commentInfo.id,
+  //       },
+  //     }
+  //   );
+  // },
+  updateComment: ({contentComment, id}) => {
+    console.log(contentComment);
+    console.log(id);
+
     return axiosClient.put(
       "Comment/updateComment",
-      commentInfo.contentComment,
+    {id, contentComment},
       {
         params: {
-          id: commentInfo.id,
+         id: id,
+          contentComment,
         },
       }
     );

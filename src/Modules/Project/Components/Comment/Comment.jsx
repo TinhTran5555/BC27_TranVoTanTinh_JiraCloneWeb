@@ -97,6 +97,7 @@ const Comment = ({ comment, index, taskId }) => {
 
                   dispatch(updateCommentThunk(commentInfo));
                   dispatch(getCommentThunk(taskId));
+                  setIsEditCommnent((prev) => !prev);
                 }}
                 variant="contained"
                 color="success"
