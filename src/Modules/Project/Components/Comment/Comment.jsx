@@ -23,7 +23,7 @@ const Comment = ({ comment, index, taskId }) => {
   const [Comment, setContentComment] = useState("");
 
   const [indexComment, setIndexComment] = useState();
-console.log("comment",comment);
+
   useEffect(() => {
     setContentComment(comment[indexComment]?.contentComment);
   }, [indexComment]);

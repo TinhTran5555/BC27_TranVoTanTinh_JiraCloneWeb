@@ -10,6 +10,10 @@ import {
   alpha,
   Avatar,
   TextField,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import React, { useState, useEffect } from "react";
@@ -24,6 +28,8 @@ import {
   getCommentThunk,
   insertCommentThunk,
 } from "../../slice/projectSlice";
+import { faClock, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRequest } from "../../../../app/hooks/request/useRequest";
 import typeTaskList from "../../../../app/apis/typeTaskList/typeTaskList";
 import statusList from "../../../../app/apis/statusList/statusList";
@@ -59,6 +65,41 @@ const categoryPriorityMap = {
   3: "Low",
   4: "Lowest",
 };
+const TimeInput = styled(TextField)(({ theme }) => ({
+  backgroundColor: colors.blueGrey[50],
+  transition: "all ease 0.1s",
+  borderRadius: "4px",
+  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+    display: "none",
+  },
+  "& input[type=number]": {
+    MozAppearance: "textfield",
+  },
+  "&:hover": {
+    backgroundColor: colors.blueGrey[100],
+    ".MuiOutlinedInput-notchedOutline": {
+      border: "none",
+    },
+  },
+  ".MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+}));
+const Group = styled(Box)(
+  ({
+    theme,
+    justify,
+    align = "center",
+    gap = "0px",
+    flexDirection = "column",
+  }) => ({
+    display: "flex",
+    justifyContent: justify,
+    alignItems: align,
+    gap: gap,
+    flexDirection: flexDirection,
+  })
+);
 
 const Task = () => {
   const { taskId } = useParams();
@@ -68,7 +109,7 @@ const Task = () => {
   const { data: auth } = useSelector(authSelector);
 
   const { taskDetail, comment } = useSelector(projectSelector);
-console.log(taskDetail);
+
   const {
     handleSubmit,
 
@@ -77,8 +118,6 @@ console.log(taskDetail);
     mode: "onBlur",
     defaultValues: {},
   });
-
-
 
   const { data: typeTaskList } = useRequest(getTypeTaskList);
   const { data: statusList } = useRequest(getStatusList);
@@ -90,13 +129,19 @@ console.log(taskDetail);
     statusId: "",
     typeId: "",
     priorityId: "",
+    originalEstimate: "",
   });
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const toggleDialog = () => {
+    setDialogOpen((prev) => !prev);
+  };
+  const sumTimeTracking = task?.timeTrackingSpent + task?.timeTrackingRemaining;
 
+  console.log(task);
   let descriptionEdit = null;
   const handleEditorChange = (content, editor) => {
     descriptionEdit = content;
   };
-
   const activeTypeTaskStyle = (id, theme) => {
     if (task?.typeId === id) {
       return {
@@ -156,13 +201,10 @@ console.log(taskDetail);
   };
 
   return (
-    <Container sx={{ marginTop: "32px" }} maxWidth="xl">
-      <form style={{ position: "relative" }} onSubmit={handleSubmit(onSubmit)}>
+    <Container  maxWidth="xl">
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container>
-          <Grid item xs={7}>
-            <Typography variant="h5" fontWeight={700}>
-              Task details
-            </Typography>
+          <Grid item xs={7}>      
             <Grid marginTop={2} container>
               <Grid>
                 <Typography
@@ -284,7 +326,7 @@ console.log(taskDetail);
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={5} marginTop={5}>
+          <Grid item xs={5} marginTop={2}>
             <Grid marginTop={2} container>
               <Grid item xs={12}>
                 <Typography
@@ -429,7 +471,252 @@ console.log(taskDetail);
                 </Grid>
               </Grid>
             </Grid>
-            <Grid marginTop={6} container sx={{ gap: "10px" }}>
+            <Grid marginTop={2} container>
+              <Typography
+                sx={{ display: "block", marginBottom: "16px" }}
+                align="left"
+                variant="subtitle1"
+                fontWeight={700}
+              >
+                Original estimate (HOURS)
+              </Typography>
+              <Grid item xs={12}>
+                <TimeInput
+                  type="number"
+                  value={task?.originalEstimate}
+                  onChange={(e) => {
+                    setTask((current) => {
+                      return {
+                        ...current,
+                        originalEstimate: Number(e.target.value),
+                      };
+                    });
+                  }}
+                  size="small"
+                  fullWidth
+                  placeholder="Please enter estimate..."
+                />
+              </Grid>
+            </Grid>
+
+            <Grid marginTop={2} container>
+              <Typography
+                sx={{ display: "block", marginBottom: "16px" }}
+                align="left"
+                variant="subtitle1"
+                fontWeight={700}
+              >
+                Time Tracking
+              </Typography>
+              <Grid item xs={12}>
+                <Dialog
+                  fullWidth
+                  maxWidth="xs"
+                  open={isDialogOpen}
+                  onClose={toggleDialog}
+                >
+                  <DialogTitle
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="caption" fontWeight={700}>
+                      Time Tracking
+                    </Typography>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={toggleDialog}
+                    >
+                      <FontAwesomeIcon icon={faXmark} />
+                    </IconButton>
+                  </DialogTitle>
+                  <DialogContent>
+                    <Grid spacing={2} container>
+                      <Grid item xs={12}>
+                        <Group
+                          align="flex-start"
+                          flexDirection="row"
+                          gap="16px"
+                        >
+                          <FontAwesomeIcon
+                            fontSize={24}
+                            style={{ color: colors.blueGrey[500] }}
+                            icon={faClock}
+                          />
+                          <Group
+                            display="flex"
+                            alignItems="center"
+                            gap="8px"
+                            width="100%"
+                          >
+                            <Box
+                              height={8}
+                              sx={{
+                                backgroundColor: colors.blueGrey[100],
+                                borderRadius: "50px",
+                                overflow: "hidden",
+                              }}
+                              width="100%"
+                            >
+                              <Box
+                                sx={{
+                                  backgroundColor: colors.lightBlue[500],
+                                  borderRadius: "50px",
+                                }}
+                                height={"100%"}
+                                width={`${
+                                  (task?.timeTrackingSpent / sumTimeTracking) *
+                                  100
+                                }%`}
+                              ></Box>
+                            </Box>
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              width="100%"
+                            >
+                              <Typography variant="body1" fontWeight={700}>
+                                {task.timeTrackingSpent
+                                  ? `${task?.timeTrackingSpent}h logged`
+                                  : "No time logged"}
+                              </Typography>
+                              <Typography variant="body1" fontWeight={700}>
+                                {task?.timeTrackingRemaining
+                                  ? `${task?.timeTrackingRemaining}h remaining`
+                                  : "No time remaining"}
+                              </Typography>
+                            </Box>
+                          </Group>
+                        </Group>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="caption" fontWeight={700}>
+                          Time spent (hours)
+                        </Typography>
+                        <TimeInput
+                          type="number"
+                          value={task?.timeTrackingSpent}
+                          onChange={(e) => {
+                            setTask((current) => {
+                              return {
+                                ...current,
+                                timeTrackingSpent: Number(e.target.value),
+                              };
+                            });
+                          }}
+                          placeholder="Number"
+                          size="small"
+                          InputProps={{
+                            inputProps: {
+                              max: 100,
+                              min: 0,
+                            },
+                          }}
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="caption" fontWeight={700}>
+                          Time remaining (hours)
+                        </Typography>
+                        <TimeInput
+                          type="number"
+                          InputProps={{
+                            inputProps: {
+                              max: 100,
+                              min: 0,
+                            },
+                          }}
+                          value={task?.timeTrackingRemaining}
+                          onChange={(e) => {
+                            setTask((current) => {
+                              return {
+                                ...current,
+                                timeTrackingRemaining: Number(e.target.value),
+                              };
+                            });
+                          }}
+                          placeholder="Number"
+                          size="small"
+                          fullWidth
+                        />
+                      </Grid>
+                    </Grid>
+                  </DialogContent>
+                  <DialogContent
+                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                  >
+                    <Button onClick={toggleDialog} variant="contained">
+                      Done
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+                <Group
+                  onClick={toggleDialog}
+                  sx={{
+                    cursor: "pointer",
+                    transition: "all ease 0.2s",
+                    padding: "8px",
+                    borderRadius: "8px",
+                    "&:hover": {
+                      backgroundColor: colors.blueGrey[50],
+                    },
+                  }}
+                  flexDirection="row"
+                  gap="16px"
+                >
+                  <FontAwesomeIcon
+                    style={{ color: colors.blueGrey[500] }}
+                    icon={faClock}
+                  />
+                  <Group
+                    display="flex"
+                    alignItems="center"
+                    gap="8px"
+                    width="100%"
+                  >
+                    <Box
+                      height={6}
+                      sx={{
+                        backgroundColor: colors.blueGrey[100],
+                        borderRadius: "50px",
+                        overflow: "hidden",
+                      }}
+                      width="100%"
+                    >
+                      <Box
+                        sx={{
+                          backgroundColor: colors.lightBlue[500],
+                          borderRadius: "50px",
+                        }}
+                        height={"100%"}
+                        width={`${
+                          (task?.timeTrackingSpent / sumTimeTracking) * 100
+                        }%`}
+                      ></Box>
+                    </Box>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      width="100%"
+                    >
+                      <Typography variant="caption" lineHeight="12px">
+                        {task?.timeTrackingSpent
+                          ? `${task?.timeTrackingSpent}h logged`
+                          : "No time logged"}
+                      </Typography>
+                      <Typography variant="caption" lineHeight="12px">
+                        {task?.timeTrackingRemaining
+                          ? `${task?.timeTrackingRemaining}h remaining`
+                          : "No time remaining"}
+                      </Typography>
+                    </Box>
+                  </Group>
+                </Group>
+              </Grid>
+            </Grid>
+            <Grid marginTop={2} container sx={{ gap: "10px" }}>
               <Grid>
                 <Button
                   type="submit"
@@ -448,7 +735,7 @@ console.log(taskDetail);
                   onClick={() => {
                     try {
                       dispatch(removeTaskThunk(taskDetail?.taskId));
-                      navigate(`/project`);
+                      navigate(`/project/${taskDetail?.projectId}`);
                     } catch (error) {
                       console.log(error);
                     }
@@ -460,7 +747,7 @@ console.log(taskDetail);
               <Grid>
                 <Button
                   onClick={() => {
-                    navigate(`/project`);
+                    navigate(`/project/${taskDetail?.projectId}`);
                   }}
                   sx={{ borderRadius: "8px" }}
                   variant="outlined"
@@ -475,8 +762,8 @@ console.log(taskDetail);
         </Grid>
       </form>
 
-      <Grid marginTop={1} container>
-        <Grid item xs={7}>
+      <Box marginTop={1} width="50%">
+        <Grid container >
           <Typography
             sx={{ display: "block", marginBottom: "16px" }}
             align="left"
@@ -528,7 +815,6 @@ console.log(taskDetail);
             </Grid>
           </Grid>
           <Grid item xs={12}>
-
             {taskDetail?.lstComment?.map((item, index) => {
               return (
                 <Comment
@@ -538,11 +824,10 @@ console.log(taskDetail);
                   taskId={taskId}
                 ></Comment>
               );
-            })
-            }
+            })}
           </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </Container>
   );
 };
