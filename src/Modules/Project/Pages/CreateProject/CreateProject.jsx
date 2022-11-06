@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { Editor } from "@tinymce/tinymce-react";
 import { useDispatch } from "react-redux";
 import { createProjectThunk } from "../../slice/projectSlice";
+import { useNavigate } from "react-router-dom";
 
 const { getProjectCategory } = projectCategory;
 
@@ -84,6 +85,7 @@ const CreateProject = () => {
   );
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -112,13 +114,11 @@ const CreateProject = () => {
         selectedCategory,
         description,
       };
-
-      console.log(projectInfo);
       const data = await dispatch(createProjectThunk(projectInfo)).unwrap();
       dispatchAlert({
         type: alertCase.success,
       });
-
+      navigate(`/project`)
       return data;
     } catch (error) {
       console.log(error);
@@ -147,17 +147,19 @@ const CreateProject = () => {
   };
 
   const handleEditorChange = (content, editor) => {
+  
     setDescription(content);
   };
 
   return (
-    <Container sx={{ marginTop: "32px" }} maxWidth="xl">
+    <Container sx={{ marginTop: "32px", textAlign:"center", maxWidth:"600px"}} maxWidth="xl">
       <form onSubmit={handleSubmit(onSubmit)}>
+        
         <Typography variant="h5" fontWeight={700}>
           Create New Project
         </Typography>
         <Grid2 sx={{ textAlign: "left" }} container>
-          <Grid2 marginTop={2} xs={4}>
+          <Grid2 marginTop={2} xs={12}>
             <InputLabel
               sx={{
                 fontSize: "14px",
@@ -198,7 +200,7 @@ const CreateProject = () => {
               Write description
             </Typography>
           </Grid2>
-          <Grid2 xs={8}>
+          <Grid2 xs={12}>
             <Editor
               placeholder="Write your project's description... "
               init={{

@@ -30,6 +30,7 @@ import { projectSelector } from "../../../../app/store";
 import {
   updateProjectThunk,
   getProjectDetailThunk,
+  getAllProjectsThunk
 } from "../../slice/projectSlice";
 
 const { getProjectCategory } = projectCategory;
@@ -169,7 +170,6 @@ export default function EditProject(projectId) {
       categoryId: idCategory,
       id: projectDetail.id,
     };
-    console.log(projectInfo);
 
     try {
       dispatch(updateProjectThunk(projectInfo))
@@ -191,6 +191,7 @@ export default function EditProject(projectId) {
         type: alertCase.success,
         payload: "Edit Successfully",
       });
+      dispatch(getAllProjectsThunk())
     } catch (error) {
       console.log(error);
       dispatchAlert({

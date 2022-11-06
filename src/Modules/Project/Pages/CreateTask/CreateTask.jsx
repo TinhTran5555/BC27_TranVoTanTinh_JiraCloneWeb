@@ -210,13 +210,12 @@ const CreateTask = () => {
         priorityId: task.priorityId,
         taskName: task.taskName,
       };
-        
 
       const data = await dispatch(createTaskThunk(taskInfo)).unwrap();
       dispatchAlert({
         type: alertCase.success,
       });
-
+      navigate(`/project/${projectId}`);
       return data;
     } catch (error) {
       console.log(error);
@@ -522,36 +521,34 @@ const CreateTask = () => {
               </Grid>
             </Grid>
             <Grid marginTop={2} container>
-              <Grid>
-                <Typography
-                  sx={{ display: "block", marginBottom: "16px" }}
-                  align="left"
-                  variant="subtitle1"
-                  fontWeight={700}
+              <Typography
+                sx={{ display: "block", marginBottom: "16px" }}
+                align="left"
+                variant="subtitle1"
+                fontWeight={700}
+              >
+                Assigness
+              </Typography>
+              <Grid item xs={12}>
+                <Select
+                  sx={{ width: "100%"}}
+                  labelId="demo-multiple-name-label"
+                  id="demo-multiple-name"
+                  multiple
+                  value={listUser}
+                  onChange={handleChange}
+                  MenuProps={MenuProps}
+                  inputProps={{ "aria-label": "Without label" }}
                 >
-                  Assigness
-                </Typography>
-                <Grid item xs={12}>
-                  <Select
-                    sx={{ width: "300px" }}
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    multiple
-                    value={listUser}
-                    onChange={handleChange}
-                    MenuProps={MenuProps}
-                    inputProps={{ "aria-label": "Without label" }}
-                  >
-                    <MenuItem disabled value="">
-                      <em>Placeholder</em>
+                  <MenuItem disabled value="">
+                    <em>Placeholder</em>
+                  </MenuItem>
+                  {userProject?.map((user) => (
+                    <MenuItem key={user.userId} value={user.userId}>
+                      {user.name}
                     </MenuItem>
-                    {userProject?.map((user) => (
-                      <MenuItem key={user.userId} value={user.userId}>
-                        {user.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </Grid>
+                  ))}
+                </Select>
               </Grid>
             </Grid>
           </Grid>
